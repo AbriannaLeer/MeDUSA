@@ -1,0 +1,49 @@
+Package: MeDUSA
+Title: Metabolomics Direct Infusion Untarged Single-cell Analysis
+Version: 6.3
+Authors@R:
+    c(person(given = "Laura", family = "Castaneda", email = "l.a.hetzel@lacdr.leidenuniv.nl", 
+             role = c("aut"), comment = c(ORCID = "0000-0002-6922-9423")),
+      person(given = "Eric", family = "Hetzel", email = "ericmhetzel@gmail.com", role = c("aut", "cre")),
+      person(given= "Klara", family = "Blaschitz", email = "klara.blaschitz@outlook.com", 
+             role = c("ctb"), comment = c(ORCID = "0000-0001-5059-4730")),
+      person(given = "Pascal", family = "Maas", email = "p.maas@lacdr.leidenuniv.nl", 
+             role = c("ctb"), comment = c(ORCID = "0000-0001-9379-6041"))
+      )
+Description:
+    MeDUSA is a  modular, customizable, and user friendly toolset to ease the data processing of Direct Infusion Untarged Single-cell Analysis.
+License: https://opensource.org/license/artistic-2-0
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+Depends:
+    R            (>= 4.0),
+    mzR          (>= 2.34.0),
+    AICcmodavg   (>= 2.3-4),
+    caret        (>= 7.0-1),
+    caTools      (>= 1.18.3),
+    dplyr        (>= 1.1.4),
+    ggplot2      (>= 3.5.2),
+    ggpubr       (>= 0.6.0),
+    Matrix       (>= 1.7-3),
+    matrixStats  (>= 1.5.0),
+    pbapply      (>= 1.7-2),
+    pheatmap     (>= 1.0.12),
+    pROC         (>= 1.18.5),
+    randomForest (>= 4.7-1.2),
+    shiny        (>= 1.8.0),
+    shinyjs      (>= 2.1.0),
+    shinythemes  (>= 1.2.0),
+    tidyr        (>= 1.3.0),
+    tibble       (>= 3.2.1),
+    XML          (>= 3.99-0.18)
+Suggests:
+    devtools (== 2.4.5),
+    later    (>= 1.4.0),
+    duckdb   (>= 1.2.1),
+    parallel (== 4.3.0),
+    readxl   (== 1.4.3),
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Config/testthat/parallel: true
+Config/testthat/start-first: 1_mzml_extract_centroid, parallel*
+Config/roxygen2/version: 8.1.0
