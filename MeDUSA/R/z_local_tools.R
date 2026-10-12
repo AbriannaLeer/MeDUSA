@@ -15,7 +15,7 @@ local.output_dir <- function() {
   out
 }
 
-# Show zeros requres full mzobjs
+# Show zeros requires full mzobjs
 local.mz_log_removed_rows <- function(in_mz, out_mz, method) {
   mz_before <- nrow(as.data.frame(in_mz))
   mz_after <- nrow(as.data.frame(out_mz))

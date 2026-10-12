@@ -94,8 +94,8 @@ CSV_FILE <- "data/sample/example_DIMS_positive_pascal.csv"
 
 
 # Polarity prefix to add to sample names ("pos" or "neg")
-# POLARITY <- "pos"
-POLARITY <- "neg"
+POLARITY <- "pos"
+# POLARITY <- "neg"
 
 
 
