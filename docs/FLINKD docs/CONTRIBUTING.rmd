@@ -1,0 +1,159 @@
+# Contributing to the GUI
+
+In this section, contributing to the GUI is explained. In particular, adding new pages to the pipeline and adding subpages to the analysis section are described.
+
+## Existing File Structure
+
+The structure of the GUI is as follows:
+
+In the main directory of the project, the file `modapp.R` can be found. This is the main app file containing the app structure, non-pipeline tabs, and navigation logic.
+
+The folder `R` contains the files holding modules corresponding to pipeline steps, analysis step subpages, and several helper functions.
+
+Additionally, the GUI imports functionality from the `MeDUSA/R` folder for pipeline steps. As a result, these functions can be called directly within the GUI files.
+
+### Within Modules
+
+Each GUI module/file in this project is divided into a UI section and a Server section.
+
+The UI section contains code to structure the layout of the corresponding page, the Server section contains the logic for navigation and functionality of the UI components.
+
+## Creating a New Page in the Pipeline
+
+To create a new page within the pipeline, the template found in `New_gui_page_template.R` within the `R` folder can be used.
+
+First, copy this file and rename it, and make sure it is placed within the `R` folder. Then rename the `new_page_ui` function at the top of the file and the `new_page_server` function within the Server section to a relevant name. Functionality can then be added or removed from the template to create the desired page.
+
+Tip: Use `ns` and `session$ns` inside the UI and Server sections respectively to avoid naming issues caused by modularity.
+
+Once the module page is finished, or at minimum the UI and Server functions have been renamed, the following five additions to the main app file: `modapp.R` have to be made to make the new page visible within the application.
+
+### 1. Add UI element
+
+Add the following line in the correct spot (matching the pipeline order) in the list found in the `Pipeline` `tabPanel` in the UI section of the main app file:
+
+```r
+div(id = "new_page_div", new_page_ui("new_page"), style = "display: none;"),
+```
+
+Replace `"new_page"` with the previously chosen name in all three occurrences.
+
+### 2. Update page vectors
+
+Add the chosen:
+
+```r
+"new_page"
+```
+
+to the `post_processing_pages` or `analysis_pages` vector in the Server section of the main file, depending on whether this page is before or after the analysis page in the pipeline.
+
+### 3. Add Server logic
+
+Add the following line in the correct spot in the Server section of the file named "Server calls":
+
+```r
+new <- new_page_server("new_page", previous_result = previous$result)
+```
+
+Ensure that naming matches the naming chosen earlier. Update the page inputs by renaming `"previous$result"` to for example `"subtraction$result"` if the page follows after the subtraction page in the pipeline. Also change the `"previous_result"` parameter for the page that used to come before e.g subtraction to keep the pipeline linear.
+
+### 4. Add to modules list
+
+Add:
+
+```r
+new_page = new,
+```
+
+to the list of modules in the Server section in the correct order.
+
+### 5. Add navigation button
+
+Add:
+
+```r
+actionButton("nav_new", "4. Button Text", class = "btn-sm btn-secondary"),
+```
+
+to the list of action buttons near the bottom of the main app file in the correct spot.
+
+Add to the first list of the two, if it is part of the pre-processing section of the pipeline and add to the second list of the two, if it is part of the analysis section.
+
+## Adding a Subpage to the Analysis Section
+
+To add a subpage to the analysis section, accessible by card from the analysis hub, the same template from `New_gui_page_template.R` can be used.
+
+In the same way as before, copy and rename the file and rename the UI and Server functions to an appropriate name. After that, the page can be modified freely.
+
+To make the page visible the following steps have to be followed:
+
+### 1. Add Server logic
+
+In `8_analysis_GUI.R`, add:
+
+```r
+new_result <- new_page_server("new", analysis_data)
+```
+
+to the list of similar lines in the Server section of this file, with "new" replaced for the chosen name for the UI and Server functions within the module.
+
+### 2. Add a clickable card
+
+Add the following code block below the similar code blocks to create a clickable card for the new sub-page. Some adjustment to layout settings may be needed to make it fit on the page:
+
+```r
+div(
+  class = "card-item",
+  div(
+    class = "card-box",
+    onclick = sprintf("Shiny.setInputValue('%s', Math.random())", session$ns("go_new")),
+    h3("New Page"),
+    p("Description of the new analysis module")
+  )
+),
+```
+
+Remember to replace "new" for the chosen name here as well.
+
+### 3. Add render logic
+
+Add the following `else if` statement, with "new" replaced, below the cards to make the sub-page visible when desired:
+
+```r
+else if (analysis_mode() == "new") {
+  new_page_ui(session$ns("new"))
+}
+```
+
+### 4. Add navigation logic
+
+Add the following `observeEvent`, with "new" replaced, below the previous step to add the navigation logic:
+
+```r
+observeEvent(input$go_new, {
+  analysis_mode("new")
+})
+```
+
+### 5. Back and Next navigation
+
+If the new sub-page has a **Go back** and **Go to Next Step** button, add the following with the correct naming:
+
+```r
+observeEvent(new_result$go_back(), {
+  analysis_mode("hub")
+})
+
+observeEvent(new_result$go_next(), {
+  go_next_trigger(Sys.time())
+})
+```
+## Finalizing Additions
+
+After completing the above steps, check that:
+
+- Module IDs match across the UI and Server sections
+- The application launches without errors
+- Navigation is available and functional, both through the navigation bar and the "Go to" and "Back" buttons
+- The correct input and output are transferred between steps
