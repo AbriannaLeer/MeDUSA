@@ -92,12 +92,9 @@ CSV_FILE <- "data/abrianna/positive.csv"
 # CSV_FILE <- "data/full/full_DIMS_positive_pascal.csv"
 # CSV_FILE <- "data/full/full_DIMS_negative_pascal.csv"
 
-
 # Polarity prefix to add to sample names ("pos" or "neg")
-# POLARITY <- "pos"
-POLARITY <- "neg"
-
-
+POLARITY <- "pos"
+# POLARITY <- "neg"
 
 # Phenotype names for the volcano comparison (exactly 2 phenotypes)
 PHENO_A <- "hek"
