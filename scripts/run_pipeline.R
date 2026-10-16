@@ -88,7 +88,9 @@ if (requireNamespace("future", quietly = TRUE)) {
 # =============================================================================
 
 # Path to your CSV file (long format with columns: mz, sample_name, intensity)
-CSV_FILE <- "data/abrianna/positive.csv"
+# CSV_FILE <- "data/abrianna/positive.csv"
+
+CSV_FILE <- "data/sample/example_DIMS_positive_pascal.csv"
 # CSV_FILE <- "data/full/full_DIMS_positive_pascal.csv"
 # CSV_FILE <- "data/full/full_DIMS_negative_pascal.csv"
 
@@ -97,8 +99,8 @@ POLARITY <- "pos"
 # POLARITY <- "neg"
 
 # Phenotype names for the volcano comparison (exactly 2 phenotypes)
-PHENO_A <- "UMUC3"
-PHENO_B <- "RT4"
+PHENO_A <- "hek"
+PHENO_B <- "hep"
 
 # Step 0 — m/z rounding precision (decimals) before pivoting to wide format.
 MZ_ROUND_DIGITS <- 3
