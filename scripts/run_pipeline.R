@@ -97,8 +97,8 @@ POLARITY <- "pos"
 # POLARITY <- "neg"
 
 # Phenotype names for the volcano comparison (exactly 2 phenotypes)
-PHENO_A <- "hek"
-PHENO_B <- "hep"
+PHENO_A <- "UMUC3"
+PHENO_B <- "RT4"
 
 # Step 0 — m/z rounding precision (decimals) before pivoting to wide format.
 MZ_ROUND_DIGITS <- 3
