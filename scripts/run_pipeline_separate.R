@@ -119,13 +119,13 @@ STEP6_MISSINGNESS_THRES <- 0.10
 # TRUE  = run the step and save a checkpoint
 # FALSE = skip the step and load its checkpoint from disk
 # -----------------------------------------------------------------------------
-RUN_STEP_0  <- TRUE
-RUN_STEP_2  <- TRUE
-RUN_STEP_3  <- TRUE
-RUN_STEP_4  <- TRUE
-RUN_STEP_5  <- TRUE
-RUN_STEP_6  <- TRUE
-RUN_STEP_7  <- TRUE
+RUN_STEP_0  <- FALSE
+RUN_STEP_2  <- FALSE
+RUN_STEP_3  <- FALSE
+RUN_STEP_4  <- FALSE
+RUN_STEP_5  <- FALSE
+RUN_STEP_6  <- FALSE
+RUN_STEP_7  <- FALSE
 RUN_STEP_8A <- TRUE
 RUN_STEP_8B <- TRUE
 RUN_STEP_9  <- TRUE
@@ -148,8 +148,8 @@ build_metadata <- function(sample_names) {
     TRUE ~ "cell"
   )
   phenotype <- dplyr::case_when(
-    grepl("hek", sample_names) ~ "hek",
-    grepl("hep", sample_names) ~ "hep",
+    grepl("UMUC3", sample_names) ~ "UMUC3",
+    grepl("RT4", sample_names) ~ "RT4",
     TRUE ~ type
   )
   data.frame(
