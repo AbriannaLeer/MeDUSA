@@ -72,9 +72,7 @@ if (file.exists("renv.lock")) {
     options(pkgType = "win.binary")
   }
 
-  # Bioconductor and CRAN packages
-  renv::install("BiocManager")
-  renv::install("bioc::mzR")
+  # CRAN packages
   cran_pkgs <- c(
     "dplyr", "ggplot2", "tibble", "tidyr", "pbapply", "devtools", "pheatmap",
     "XML", "randomForest", "caret", "caTools", "AICcmodavg", "Matrix", "matrixStats",

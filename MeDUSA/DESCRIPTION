@@ -17,7 +17,6 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Depends:
     R            (>= 4.0),
-    mzR          (>= 2.34.0),
     AICcmodavg   (>= 2.3-4),
     caret        (>= 7.0-1),
     caTools      (>= 1.18.3),

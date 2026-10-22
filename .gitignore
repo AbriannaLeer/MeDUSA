@@ -6,4 +6,5 @@ renv/
 data/sample/
 installation/renv/
 .Rprofile
-renv.lock
+renv.lock.RData
+.RDataTmp
