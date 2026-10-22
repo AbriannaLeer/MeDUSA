@@ -127,8 +127,8 @@ RUN_STEP_5  <- TRUE
 RUN_STEP_6  <- TRUE
 RUN_STEP_7  <- TRUE
 RUN_STEP_8A <- TRUE
-RUN_STEP_8B <- TRUE
-RUN_STEP_9  <- TRUE
+#RUN_STEP_8B <- TRUE
+#RUN_STEP_9  <- TRUE
 
 # -----------------------------------------------------------------------------
 # Optional subsampling
@@ -148,8 +148,8 @@ build_metadata <- function(sample_names) {
     TRUE ~ "cell"
   )
   phenotype <- dplyr::case_when(
-    grepl("hek", sample_names) ~ "hek",
-    grepl("hep", sample_names) ~ "hep",
+    grepl("UMUC3", sample_names) ~ "UMUC3",
+    grepl("RT4", sample_names) ~ "RT4",
     TRUE ~ type
   )
   data.frame(
@@ -439,143 +439,143 @@ run_or_load_step(
 # =============================================================================
 # STEP 8b: Random Forest
 # =============================================================================
-run_or_load_step(
-  step_id = "step8b",
-  stage_name = "Step 8b: Random Forest",
-  enabled = RUN_STEP_8B,
-  checkpoint_vars = c(
-    "metadata", "post", "mzLong", "mzLog",
-    "volcano", "rf_result", "important_mz"
-  ),
-  expr = {
-    cat("\n=== Step 8b: Random Forest ===\n")
-
-    rf_result <- NULL
-
-    cell_meta   <- metadata[metadata$phenotype %in% c(PHENO_A, PHENO_B), ]
-    mzLog_cells <- mztools_filter(mzLog, cell_meta, c(PHENO_A, PHENO_B))
-
-    n_before <- nrow(mzLog_cells)
-    feature_cols <- setdiff(colnames(mzLog_cells), "mz")
-    finite_rows <- apply(
-      mzLog_cells[, feature_cols], 1,
-      function(r) all(is.finite(r))
-    )
-    mzLog_cells <- mzLog_cells[finite_rows, ]
-
-    cat(
-      "  Removed", n_before - nrow(mzLog_cells), "non-finite features;",
-      nrow(mzLog_cells), "remaining\n"
-    )
-
-    rf_matrix   <- data.frame(t(dplyr::select(mzLog_cells, -mz)))
-    feature_ids <- as.character(mzLog_cells$mz)
-    cor_cutoff  <- 0.75
-
-    if (ncol(rf_matrix) > 1) {
-      cor_mat      <- cor(rf_matrix)
-      high_cor_idx <- caret::findCorrelation(cor_mat, cutoff = cor_cutoff)
-    } else {
-      high_cor_idx <- integer(0)
-    }
-
-    keep_idx            <- setdiff(seq_along(feature_ids), high_cor_idx)
-    rf_matrix           <- rf_matrix[, keep_idx, drop = FALSE]
-    colnames(rf_matrix) <- feature_ids[keep_idx]
-    cor_data            <- cbind(sample_name = rownames(rf_matrix), rf_matrix)
-
-    cat(
-      "  RF correlation filter removed", length(high_cor_idx), "features;",
-      ncol(cor_data) - 1, "remaining\n"
-    )
-
-    if (ncol(cor_data) <= 1) {
-      stop("No RF features remain after correlation filtering.")
-    }
-
-    n_features <- ncol(cor_data) - 1L
-    feat_size_seq <- seq(50, min(500, n_features), by = 50)
-    if (length(feat_size_seq) == 0) feat_size_seq <- min(10, n_features)
-
-    rfe_result <- tryCatch(
-      mzlog_rf_select(cor_data, cell_meta, feat_size_seq = feat_size_seq),
-      error = function(e) {
-        cat("  RF select failed with default feature sizes; retrying with smaller sizes...\n")
-        fallback_sizes <- unique(pmax(2, round(seq(10, min(100, n_features), by = 10))))
-        mzlog_rf_select(cor_data, cell_meta, feat_size_seq = fallback_sizes)
-      }
-    )
-
-    rf_result <- tryCatch(
-      {
-        out <- mzlog_rf(mzLog_cells, cell_meta, rfe_result, plot = FALSE)
-        rf_validate(out)
-        rf_permuted(out, POLARITY)
-        out
-      },
-      error = function(e) {
-        cat("  Random Forest step failed; continuing with volcano-only identification.\n")
-        cat("  RF error:", conditionMessage(e), "\n")
-        NULL
-      }
-    )
-
-    important_mz <- numeric(0)
-    if (!is.null(rf_result) &&
-        !is.null(rf_result$imp_mz) &&
-        "mz" %in% colnames(rf_result$imp_mz)) {
-      important_mz <- as.numeric(rf_result$imp_mz$mz)
-    }
-    important_mz <- important_mz[is.finite(important_mz)]
-
-    cat("  Important features from RF:", length(important_mz), "\n")
-
-    rm(mzLog_cells, rf_matrix, cor_mat, cor_data)
-    gc(full = TRUE)
-  }
-)
+# run_or_load_step(
+#   step_id = "step8b",
+#   stage_name = "Step 8b: Random Forest",
+#   enabled = RUN_STEP_8B,
+#   checkpoint_vars = c(
+#     "metadata", "post", "mzLong", "mzLog",
+#     "volcano", "rf_result", "important_mz"
+#   ),
+#   expr = {
+#     cat("\n=== Step 8b: Random Forest ===\n")
+# 
+#     rf_result <- NULL
+# 
+#     cell_meta   <- metadata[metadata$phenotype %in% c(PHENO_A, PHENO_B), ]
+#     mzLog_cells <- mztools_filter(mzLog, cell_meta, c(PHENO_A, PHENO_B))
+# 
+#     n_before <- nrow(mzLog_cells)
+#     feature_cols <- setdiff(colnames(mzLog_cells), "mz")
+#     finite_rows <- apply(
+#       mzLog_cells[, feature_cols], 1,
+#       function(r) all(is.finite(r))
+#     )
+#     mzLog_cells <- mzLog_cells[finite_rows, ]
+# 
+#     cat(
+#       "  Removed", n_before - nrow(mzLog_cells), "non-finite features;",
+#       nrow(mzLog_cells), "remaining\n"
+#     )
+# 
+#     rf_matrix   <- data.frame(t(dplyr::select(mzLog_cells, -mz)))
+#     feature_ids <- as.character(mzLog_cells$mz)
+#     cor_cutoff  <- 0.75
+# 
+#     if (ncol(rf_matrix) > 1) {
+#       cor_mat      <- cor(rf_matrix)
+#       high_cor_idx <- caret::findCorrelation(cor_mat, cutoff = cor_cutoff)
+#     } else {
+#       high_cor_idx <- integer(0)
+#     }
+# 
+#     keep_idx            <- setdiff(seq_along(feature_ids), high_cor_idx)
+#     rf_matrix           <- rf_matrix[, keep_idx, drop = FALSE]
+#     colnames(rf_matrix) <- feature_ids[keep_idx]
+#     cor_data            <- cbind(sample_name = rownames(rf_matrix), rf_matrix)
+# 
+#     cat(
+#       "  RF correlation filter removed", length(high_cor_idx), "features;",
+#       ncol(cor_data) - 1, "remaining\n"
+#     )
+# 
+#     if (ncol(cor_data) <= 1) {
+#       stop("No RF features remain after correlation filtering.")
+#     }
+# 
+#     n_features <- ncol(cor_data) - 1L
+#     feat_size_seq <- seq(50, min(500, n_features), by = 50)
+#     if (length(feat_size_seq) == 0) feat_size_seq <- min(10, n_features)
+# 
+#     rfe_result <- tryCatch(
+#       mzlog_rf_select(cor_data, cell_meta, feat_size_seq = feat_size_seq),
+#       error = function(e) {
+#         cat("  RF select failed with default feature sizes; retrying with smaller sizes...\n")
+#         fallback_sizes <- unique(pmax(2, round(seq(10, min(100, n_features), by = 10))))
+#         mzlog_rf_select(cor_data, cell_meta, feat_size_seq = fallback_sizes)
+#       }
+#     )
+# 
+#     rf_result <- tryCatch(
+#       {
+#         out <- mzlog_rf(mzLog_cells, cell_meta, rfe_result, plot = FALSE)
+#         rf_validate(out)
+#         rf_permuted(out, POLARITY)
+#         out
+#       },
+#       error = function(e) {
+#         cat("  Random Forest step failed; continuing with volcano-only identification.\n")
+#         cat("  RF error:", conditionMessage(e), "\n")
+#         NULL
+#       }
+#     )
+# 
+#     important_mz <- numeric(0)
+#     if (!is.null(rf_result) &&
+#         !is.null(rf_result$imp_mz) &&
+#         "mz" %in% colnames(rf_result$imp_mz)) {
+#       important_mz <- as.numeric(rf_result$imp_mz$mz)
+#     }
+#     important_mz <- important_mz[is.finite(important_mz)]
+# 
+#     cat("  Important features from RF:", length(important_mz), "\n")
+# 
+#     rm(mzLog_cells, rf_matrix, cor_mat, cor_data)
+#     gc(full = TRUE)
+#   }
+# )
 
 # =============================================================================
 # STEP 9: Compound Identification
 # =============================================================================
-run_or_load_step(
-  step_id = "step9",
-  stage_name = "Step 9: Compound Identification",
-  enabled = RUN_STEP_9,
-  checkpoint_vars = c(
-    "metadata", "post", "mzLong", "mzLog",
-    "volcano", "rf_result", "important_mz", "sig_mz", "all_important_mz",
-    "hmdb_hits", "lipid_hits"
-  ),
-  expr = {
-    cat("\n=== Step 9: Compound Identification ===\n")
-
-    sig_mz <- as.numeric(volcano$welch$mz[volcano$welch$p_05])
-    sig_mz <- sig_mz[is.finite(sig_mz)]
-
-    all_important_mz <- unique(c(sig_mz, important_mz))
-    all_important_mz <- all_important_mz[is.finite(all_important_mz)]
-
-    if (length(all_important_mz) > 0) {
-      cat("  Identifying", length(all_important_mz), "features...\n")
-
-      hmdb_hits  <- identify_hmdb(all_important_mz, adducts = c("M+H", "M+Na"))
-      lipid_hits <- identify_lipids(all_important_mz, adducts = c("M+H", "M+Na"))
-
-      cat("  HMDB hits:",  nrow(hmdb_hits),  "\n")
-      cat("  Lipid hits:", nrow(lipid_hits), "\n")
-
-      write.csv(hmdb_hits,  file.path(out_dir, "hmdb_hits.csv"),  row.names = FALSE)
-      write.csv(lipid_hits, file.path(out_dir, "lipid_hits.csv"), row.names = FALSE)
-
-      cat("  Results saved to", out_dir, "\n")
-    } else {
-      hmdb_hits  <- data.frame()
-      lipid_hits <- data.frame()
-      cat("  No significant features found for identification.\n")
-    }
-  }
-)
+# run_or_load_step(
+#   step_id = "step9",
+#   stage_name = "Step 9: Compound Identification",
+#   enabled = RUN_STEP_9,
+#   checkpoint_vars = c(
+#     "metadata", "post", "mzLong", "mzLog",
+#     "volcano", "rf_result", "important_mz", "sig_mz", "all_important_mz",
+#     "hmdb_hits", "lipid_hits"
+#   ),
+#   expr = {
+#     cat("\n=== Step 9: Compound Identification ===\n")
+# 
+#     sig_mz <- as.numeric(volcano$welch$mz[volcano$welch$p_05])
+#     sig_mz <- sig_mz[is.finite(sig_mz)]
+# 
+#     all_important_mz <- unique(c(sig_mz, important_mz))
+#     all_important_mz <- all_important_mz[is.finite(all_important_mz)]
+# 
+#     if (length(all_important_mz) > 0) {
+#       cat("  Identifying", length(all_important_mz), "features...\n")
+# 
+#       hmdb_hits  <- identify_hmdb(all_important_mz, adducts = c("M+H", "M+Na"))
+#       lipid_hits <- identify_lipids(all_important_mz, adducts = c("M+H", "M+Na"))
+# 
+#       cat("  HMDB hits:",  nrow(hmdb_hits),  "\n")
+#       cat("  Lipid hits:", nrow(lipid_hits), "\n")
+# 
+#       write.csv(hmdb_hits,  file.path(out_dir, "hmdb_hits.csv"),  row.names = FALSE)
+#       write.csv(lipid_hits, file.path(out_dir, "lipid_hits.csv"), row.names = FALSE)
+# 
+#       cat("  Results saved to", out_dir, "\n")
+#     } else {
+#       hmdb_hits  <- data.frame()
+#       lipid_hits <- data.frame()
+#       cat("  No significant features found for identification.\n")
+#     }
+#   }
+# )
 
 cat("\n=== Pipeline complete! ===\n")
 
