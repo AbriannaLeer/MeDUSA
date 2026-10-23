@@ -8,3 +8,4 @@ installation/renv/
 .Rprofile
 renv.lock.RData
 .RDataTmp
+.RData 
