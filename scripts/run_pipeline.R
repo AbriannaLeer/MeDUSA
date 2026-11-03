@@ -90,10 +90,6 @@ if (requireNamespace("future", quietly = TRUE)) {
 # Path to your CSV file (long format with columns: mz, sample_name, intensity)
 CSV_FILE <- "data/abrianna/positive_dirk.csv"
 
-#CSV_FILE <- "data/sample/example_DIMS_positive_pascal.csv"
-# CSV_FILE <- "data/full/full_DIMS_positive_pascal.csv"
-# CSV_FILE <- "data/full/full_DIMS_negative_pascal.csv"
-
 # Polarity prefix to add to sample names ("pos" or "neg")
 POLARITY <- "pos"
 # POLARITY <- "neg"
