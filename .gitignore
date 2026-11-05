@@ -9,3 +9,5 @@ installation/renv/
 renv.lock.RData
 .RDataTmp
 .RData 
+data/abrianna/positive_pascal_long.csv
+data/abrianna/negative_pascal_long.csv
