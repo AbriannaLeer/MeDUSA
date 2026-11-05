@@ -20,7 +20,7 @@ library(data.table)
 # 
 # dt <- fread("data/abrianna/positive_dirk.csv")
 # 
-# # Drop the bad mz column, rename Labels to mz
+# # rename Labels to mz
 # dt[, mz := NULL]
 # setnames(dt, "Labels", "mz")
 # 
