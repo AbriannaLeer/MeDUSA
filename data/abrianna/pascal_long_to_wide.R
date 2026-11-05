@@ -26,3 +26,16 @@ wide2 <- df2 |>
 
 write.csv(wide, "data/abrianna/positive_pascal_wide.csv", row.names = FALSE)
 write.csv(wide2, "data/abrianna/negative_pascal_wide.csv", row.names = FALSE)
+
+# with the new wide dataset back to long for the pipeline
+
+df <- read.csv("data/abrianna/negative_pascal_wide.csv", stringsAsFactors = FALSE)
+
+long <- df |>
+  pivot_longer(
+    cols      = -mz,
+    names_to  = "sample_name",
+    values_to = "intensity"
+  )
+
+write.csv(long, "data/abrianna/negative_pascal_long.csv", row.names = FALSE)
