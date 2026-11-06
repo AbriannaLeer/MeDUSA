@@ -88,7 +88,7 @@ if (requireNamespace("future", quietly = TRUE)) {
 # =============================================================================
 
 # Path to your CSV file (long format with columns: mz, sample_name, intensity)
-CSV_FILE <- "data/abrianna/positive_dirk.csv"
+CSV_FILE <- "data/abrianna/positive_dirk_zero.csv"
 
 # Polarity prefix to add to sample names ("pos" or "neg")
 POLARITY <- "pos"
@@ -123,6 +123,10 @@ RUN_STEP_5  <- TRUE
 RUN_STEP_6  <- TRUE
 RUN_STEP_7  <- TRUE
 RUN_STEP_8A <- TRUE
+RUN_STEP_9 <- TRUE
+
+RANDOM_SEED <- 1
+set.seed(RANDOM_SEED)
 
 # -----------------------------------------------------------------------------
 # Optional subsampling
@@ -424,9 +428,50 @@ run_or_load_step(
     volcano <- mzlog_analysis_volcano_magic(phenoA_data, phenoB_data, mzLog, metadata)
 
     cat("  Significant features (Welch):", sum(volcano$welch$p_05), "\n")
+    
+    # save significant features
+    significant_welch <- rownames(volcano$welch)[volcano$welch$p_05 == TRUE]
 
     rm(phenoA_data, phenoB_data)
     gc(full = TRUE)
+  }
+)
+
+# =============================================================================
+# STEP 9: Compound Identification
+# =============================================================================
+run_or_load_step(
+  step_id = "step9",
+  stage_name = "Step 9: Compound Identification",
+  enabled = RUN_STEP_9,
+  checkpoint_vars = c(
+    "metadata", "post", "mzLong", "mzLog",
+    "volcano", "sig_mz", "hmdb_hits", "lipid_hits"
+  ),
+  expr = {
+    cat("\n=== Step 9: Compound Identification ===\n")
+    
+    sig_mz <- as.numeric(volcano$welch$mz[volcano$welch$p_05])
+    sig_mz <- sig_mz[is.finite(sig_mz)]
+    
+    if (length(sig_mz) > 0) {
+      cat("  Identifying", length(sig_mz), "features...\n")
+      
+      hmdb_hits  <- identify_hmdb(sig_mz, adducts = c("M+H", "M+Na"))
+      lipid_hits <- identify_lipids(sig_mz, adducts = c("M+H", "M+Na"))
+      
+      cat("  HMDB hits:",  nrow(hmdb_hits),  "\n")
+      cat("  Lipid hits:", nrow(lipid_hits), "\n")
+      
+      write.csv(hmdb_hits,  file.path(out_dir, "hmdb_hits.csv"),  row.names = FALSE)
+      write.csv(lipid_hits, file.path(out_dir, "lipid_hits.csv"), row.names = FALSE)
+      
+      cat("  Results saved to", out_dir, "\n")
+    } else {
+      hmdb_hits  <- data.frame()
+      lipid_hits <- data.frame()
+      cat("  No significant features found for identification.\n")
+    }
   }
 )
 
