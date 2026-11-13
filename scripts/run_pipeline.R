@@ -88,13 +88,29 @@ if (requireNamespace("future", quietly = TRUE)) {
 # =============================================================================
 
 # Path to your CSV file (long format with columns: mz, sample_name, intensity)
-CSV_FILE <- "data/abrianna/positive_dirk_zero.csv"
+# CSV_FILE <- "data/abrianna/positive_pascal_long_zero.csv"
+CSV_FILE <- readline(prompt = "Enter your path to CSV file: ")
+
+# wide to long format
+# #long <- df |>
+#   pivot_longer(
+#     cols      = -mz,
+#     names_to  = "sample_name",
+#     values_to = "intensity"
+#   )
 
 # Polarity prefix to add to sample names ("pos" or "neg")
-POLARITY <- "pos"
-# POLARITY <- "neg"
+POLARITY <- readline(prompt = "Enter the polarity (pos/neg): ")
 
 # Phenotype names for the volcano comparison (exactly 2 phenotypes)
+# TODO
+# cat phenotypes form metadata and then show list and choose two
+# PHENOTYPES <-
+# cat("Your phenotypes are: PHENOTYPES")
+# make loop so phenotypes can be chosen again if y or n!
+# PHENO_A <- readline(prompt = "Choose first phenotype: ")
+# PHENO_B <- readline(prompt = "Choose second phenotype: ")
+# cat("Your chosen phenotypes are ", PHENO_A " and ", PHENO_B)
 PHENO_A <- "UMUC3"
 PHENO_B <- "RT4"
 
@@ -125,6 +141,7 @@ RUN_STEP_7  <- TRUE
 RUN_STEP_8A <- TRUE
 RUN_STEP_9 <- TRUE
 
+# remove random runs
 RANDOM_SEED <- 1
 set.seed(RANDOM_SEED)
 
@@ -428,9 +445,6 @@ run_or_load_step(
     volcano <- mzlog_analysis_volcano_magic(phenoA_data, phenoB_data, mzLog, metadata)
 
     cat("  Significant features (Welch):", sum(volcano$welch$p_05), "\n")
-    
-    # save significant features
-    significant_welch <- rownames(volcano$welch)[volcano$welch$p_05 == TRUE]
 
     rm(phenoA_data, phenoB_data)
     gc(full = TRUE)
@@ -451,14 +465,15 @@ run_or_load_step(
   expr = {
     cat("\n=== Step 9: Compound Identification ===\n")
     
-    sig_mz <- as.numeric(volcano$welch$mz[volcano$welch$p_05])
-    sig_mz <- sig_mz[is.finite(sig_mz)]
+    sig_mz1 <- volcano$welch[volcano$welch$p_05, "mz", drop = FALSE]
+    sig_mz1$mz <- as.numeric(sig_mz1$mz)
+    sig_mz <- sig_mz1[is.finite(sig_mz1$mz), , drop = FALSE]
     
     if (length(sig_mz) > 0) {
       cat("  Identifying", length(sig_mz), "features...\n")
       
-      hmdb_hits  <- identify_hmdb(sig_mz, adducts = c("M+H", "M+Na"))
-      lipid_hits <- identify_lipids(sig_mz, adducts = c("M+H", "M+Na"))
+      hmdb_hits  <- identify_hmdb(sig_mz[, c("mz")], adducts = c("M+H", "M+Na"))
+      lipid_hits <- identify_lipids(sig_mz[, c("mz")], adducts = c("M+H", "M+Na"))
       
       cat("  HMDB hits:",  nrow(hmdb_hits),  "\n")
       cat("  Lipid hits:", nrow(lipid_hits), "\n")
