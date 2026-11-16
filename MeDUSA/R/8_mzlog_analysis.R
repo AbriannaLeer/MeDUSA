@@ -87,8 +87,6 @@ mzlog_analysis_pca <- function(input_mzlog_obj, metadata, qual_col = "phenotype"
 #'  - p_05    : Boolean: is P < 0.05
 #'  - p_10    : Boolean: is P < 0.10
 #'  - p_15    : Boolean: is P < 0.15
-#'  - mean_a  : Float: mean intensity of phenoA
-#'  - mean_b  : Float: mean intensity of phenoB
 #'  - adjusted: p.adjust($p, adjust_method) *optional, but default
 #' @export
 mzlog_analysis_welch <- function(phenoA_mz_obj, phenoB_mz_obj, adjust = "fdr", cores = 2) {
