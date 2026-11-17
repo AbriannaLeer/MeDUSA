@@ -88,10 +88,10 @@ if (requireNamespace("future", quietly = TRUE)) {
 # =============================================================================
 
 # Path to your CSV file (long format with columns: mz, sample_name, intensity)
-# CSV_FILE <- "data/abrianna/positive_pascal_long_zero.csv"
 CSV_FILE <- readline(prompt = "Enter your path to CSV file: ")
 
-# wide to long format
+# wide format (mz first column, sample columns and intensity values)
+# wide to long format TODO
 # #long <- df |>
 #   pivot_longer(
 #     cols      = -mz,
@@ -104,6 +104,8 @@ POLARITY <- readline(prompt = "Enter the polarity (pos/neg): ")
 
 # Phenotype names for the volcano comparison (exactly 2 phenotypes)
 # TODO
+# sub("_.*", "", "umuc3_737338")
+# [1] "umuc3"
 # cat phenotypes form metadata and then show list and choose two
 # PHENOTYPES <-
 # cat("Your phenotypes are: PHENOTYPES")
@@ -111,6 +113,7 @@ POLARITY <- readline(prompt = "Enter the polarity (pos/neg): ")
 # PHENO_A <- readline(prompt = "Choose first phenotype: ")
 # PHENO_B <- readline(prompt = "Choose second phenotype: ")
 # cat("Your chosen phenotypes are ", PHENO_A " and ", PHENO_B)
+# cat("Continue with chosen phenotypes (y/n)?)
 PHENO_A <- "UMUC3"
 PHENO_B <- "RT4"
 
