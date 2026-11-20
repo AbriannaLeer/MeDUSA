@@ -229,7 +229,7 @@ run_or_load_step(
   expr = {
     cat("\n=== Step 0: Loading CSV and creating MZ-OBJ ===\n")
 
-    raw_all <- read.csv(CSV_FILE, stringsAsFactors = FALSE)
+    raw_all <- read.csv(CSV_FILE, stringsAsFactors = FALSE, check.names = FALSE)
     # change to long format (mz, sample_name, intensity)
     raw_all <- raw_all |>
       pivot_longer(
