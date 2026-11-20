@@ -167,9 +167,10 @@ mz_quality_meta_check <- function(input_mz_obj, meta) {
   # Many more can be expected for "good science", but these are the ones that absence will cause issue
   meta_columns_expected <- c(
     "sample_name",
-    "type",
+    "sample_type",
     "phenotype",
-    "filtered_out"
+    "filtered_out",
+    "polarity"
   )
 
 
