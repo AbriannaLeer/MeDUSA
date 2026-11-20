@@ -87,17 +87,8 @@ if (requireNamespace("future", quietly = TRUE)) {
 # CONFIGURATION
 # =============================================================================
 
-# Path to your CSV file (long format with columns: mz, sample_name, intensity)
+# Path to your CSV file (wide format: mz first column, sample_name columns and intensity values)
 CSV_FILE <- readline(prompt = "Enter your path to CSV file: ")
-
-# wide format (mz first column, sample columns and intensity values)
-# wide to long format TODO
-# #long <- df |>
-#   pivot_longer(
-#     cols      = -mz,
-#     names_to  = "sample_name",
-#     values_to = "intensity"
-#   )
 
 # Path to your metadata file (long format with columns: sample_name, sample_type, phenotype, filtered_out, polarity)
 METADATA <- readline(prompt = "Enter your path to metadata file: ")
@@ -239,6 +230,13 @@ run_or_load_step(
     cat("\n=== Step 0: Loading CSV and creating MZ-OBJ ===\n")
 
     raw_all <- read.csv(CSV_FILE, stringsAsFactors = FALSE)
+    # change to long format (mz, sample_name, intensity)
+    raw_all <- raw_all |>
+      pivot_longer(
+        cols      = -mz,
+        names_to  = "sample_name",
+        values_to = "intensity"
+      )
 
     if (USE_SUBSAMPLE) {
       set.seed(SUBSAMPLE_SEED)
