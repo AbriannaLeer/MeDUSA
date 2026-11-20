@@ -90,6 +90,9 @@ if (requireNamespace("future", quietly = TRUE)) {
 # Path to your CSV file (long format with columns: mz, sample_name, intensity)
 CSV_FILE <- readline(prompt = "Enter your path to CSV file: ")
 
+# Path to your metadata file (long format with columns: sample_name, sample_type, phenotype, filtered_out, polarity)
+
+
 # wide format (mz first column, sample columns and intensity values)
 # wide to long format TODO
 # #long <- df |>
@@ -101,21 +104,6 @@ CSV_FILE <- readline(prompt = "Enter your path to CSV file: ")
 
 # Polarity prefix to add to sample names ("pos" or "neg")
 POLARITY <- readline(prompt = "Enter the polarity (pos/neg): ")
-
-# Phenotype names for the volcano comparison (exactly 2 phenotypes)
-# TODO
-# sub("_.*", "", "umuc3_737338")
-# [1] "umuc3"
-# cat phenotypes form metadata and then show list and choose two
-# PHENOTYPES <-
-# cat("Your phenotypes are: PHENOTYPES")
-# make loop so phenotypes can be chosen again if y or n!
-# PHENO_A <- readline(prompt = "Choose first phenotype: ")
-# PHENO_B <- readline(prompt = "Choose second phenotype: ")
-# cat("Your chosen phenotypes are ", PHENO_A " and ", PHENO_B)
-# cat("Continue with chosen phenotypes (y/n)?)
-PHENO_A <- "UMUC3"
-PHENO_B <- "RT4"
 
 # Step 0 — m/z rounding precision (decimals) before pivoting to wide format.
 MZ_ROUND_DIGITS <- 3
@@ -159,7 +147,7 @@ SUBSAMPLE_SEED <- 1
 # Metadata builder
 # =============================================================================
 build_metadata <- function(sample_names) {
-  type <- dplyr::case_when(
+  sample_type <- dplyr::case_when(
     grepl("blank", sample_names) ~ "blank",
     grepl("media", sample_names) ~ "media",
     grepl("qc", sample_names) ~ "qc",
@@ -168,16 +156,37 @@ build_metadata <- function(sample_names) {
   phenotype <- dplyr::case_when(
     grepl("UMUC3", sample_names) ~ "UMUC3",
     grepl("RT4", sample_names) ~ "RT4",
-    TRUE ~ type
+    TRUE ~ sample_type
   )
   data.frame(
     sample_name = sample_names,
-    type = type,
+    sample_type = sample_type,
     phenotype = phenotype,
     filtered_out = FALSE,
     stringsAsFactors = FALSE
   )
 }
+
+# =============================================================================
+# Choosing phenotypes for volcano comparison
+# =============================================================================
+
+# Phenotype names for the volcano comparison (exactly 2 phenotypes)
+# PHENOTYPES <- unique(metadata$phenotype[metadata$sample_type != "blank"])
+# cat("Your phenotypes are: PHENOTYPES")
+# make loop so phenotypes can be chosen again if y or n!
+# chosen <- FALSE
+# while (chosen != TRUE) {
+# # PHENO_A <- readline(prompt = "Choose first phenotype for volcano: ")
+# PHENO_B <- readline(prompt = "Choose second phenotype for volcano: ")
+# cat("Your chosen phenotypes are ", PHENO_A " and ", PHENO_B)
+# answer <- tolower(readline(prompt = "Continue with chosen phenotypes (y/n)?))
+# if (answer == "y") {
+#  chosen <- TRUE
+#} 
+# }
+PHENO_A <- "UMUC3"
+PHENO_B <- "RT4"
 
 # =============================================================================
 # Checkpoint utilities
