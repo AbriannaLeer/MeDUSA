@@ -90,9 +90,6 @@ if (requireNamespace("future", quietly = TRUE)) {
 # Path to your CSV file (long format with columns: mz, sample_name, intensity)
 CSV_FILE <- readline(prompt = "Enter your path to CSV file: ")
 
-# Path to your metadata file (long format with columns: sample_name, sample_type, phenotype, filtered_out, polarity)
-
-
 # wide format (mz first column, sample columns and intensity values)
 # wide to long format TODO
 # #long <- df |>
@@ -101,6 +98,9 @@ CSV_FILE <- readline(prompt = "Enter your path to CSV file: ")
 #     names_to  = "sample_name",
 #     values_to = "intensity"
 #   )
+
+# Path to your metadata file (long format with columns: sample_name, sample_type, phenotype, filtered_out, polarity)
+METADATA <- readline(prompt = "Enter your path to metadata file: ")
 
 # Polarity prefix to add to sample names ("pos" or "neg")
 POLARITY <- readline(prompt = "Enter the polarity (pos/neg): ")
@@ -144,28 +144,10 @@ SUBSAMPLE_PER_SAMPLE <- 25000
 SUBSAMPLE_SEED <- 1
 
 # =============================================================================
-# Metadata builder
+# Metadata filter on polarity
 # =============================================================================
-build_metadata <- function(sample_names) {
-  sample_type <- dplyr::case_when(
-    grepl("blank", sample_names) ~ "blank",
-    grepl("media", sample_names) ~ "media",
-    grepl("qc", sample_names) ~ "qc",
-    TRUE ~ "cell"
-  )
-  phenotype <- dplyr::case_when(
-    grepl("UMUC3", sample_names) ~ "UMUC3",
-    grepl("RT4", sample_names) ~ "RT4",
-    TRUE ~ sample_type
-  )
-  data.frame(
-    sample_name = sample_names,
-    sample_type = sample_type,
-    phenotype = phenotype,
-    filtered_out = FALSE,
-    stringsAsFactors = FALSE
-  )
-}
+
+metadata <- metadata[metadata$polarity == POLARITY, ]
 
 # =============================================================================
 # Choosing phenotypes for volcano comparison
@@ -306,7 +288,7 @@ run_or_load_step(
     )
 
     meta_names <- sub(paste0("^", POLARITY, "_"), "", unique_samples)
-    metadata <- build_metadata(meta_names)
+    metadata <- METADATA
 
     cat("  Metadata:", nrow(metadata), "samples\n")
     cat("  Types:", paste(unique(metadata$type), collapse = ", "), "\n")
