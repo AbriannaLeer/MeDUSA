@@ -144,20 +144,19 @@ SUBSAMPLE_PER_SAMPLE <- 25000
 SUBSAMPLE_SEED <- 1
 
 # =============================================================================
-# Metadata filter on polarity
+# Metadata filter on chosen polarity
 # =============================================================================
 
 metadata <- read.csv(METADATA, stringsAsFactors = FALSE)
 metadata <- metadata[metadata$polarity == POLARITY, ]
 
 # =============================================================================
-# Choosing phenotypes for volcano comparison
+# Choosing phenotypes for volcano comparison (exactly 2 phenotypes)
 # =============================================================================
-
-# Phenotype names for the volcano comparison (exactly 2 phenotypes)
 PHENOTYPES <- unique(metadata$phenotype[metadata$sample_type != "blank"])
-cat("Your phenotypes are: ", PHENOTYPES)
-# make loop so phenotypes can be chosen again if y or n!
+cat("Your phenotypes are: ", paste(PHENOTYPES, collapse = ", "), "\n")
+
+# Loop to choose phenotypes again
 chosen <- FALSE
 while (chosen != TRUE) {
   PHENO_A <- readline(prompt = "Choose first phenotype for volcano: ")
@@ -287,10 +286,9 @@ run_or_load_step(
     )
 
     meta_names <- sub(paste0("^", POLARITY, "_"), "", unique_samples)
-    metadata <- METADATA
 
     cat("  Metadata:", nrow(metadata), "samples\n")
-    cat("  Types:", paste(unique(metadata$type), collapse = ", "), "\n")
+    cat("  Types:", paste(unique(metadata$sample_type), collapse = ", "), "\n")
     cat("  Phenotypes:", paste(unique(metadata$phenotype), collapse = ", "), "\n")
   }
 )
@@ -321,8 +319,8 @@ run_or_load_step(
   expr = {
     cat("\n=== Step 3: Blank Subtraction ===\n")
 
-    sample_mz <- mztools_filter(mz_obj, metadata, "blank", "type", exclude = TRUE)
-    blank_mz  <- mztools_filter(mz_obj, metadata, "blank", "type", exclude = FALSE)
+    sample_mz <- mztools_filter(mz_obj, metadata, "blank", "sample_type", exclude = TRUE)
+    blank_mz  <- mztools_filter(mz_obj, metadata, "blank", "sample_type", exclude = FALSE)
 
     if (ncol(blank_mz) > 1) {
       mz_obj <- mz_subtraction(sample_mz, blank_mz, threshold = 3)
@@ -406,7 +404,7 @@ run_or_load_step(
     gc(full = TRUE)
     mem_report("before mz_post_magic")
 
-    metadata <- metadata[metadata$type != "blank", ]
+    metadata <- metadata[metadata$sample_type != "blank", ]
 
     post   <- mz_post_magic(mz_obj, metadata, plot = FALSE)
     mzLong <- post$mzLong
