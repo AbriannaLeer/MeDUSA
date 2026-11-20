@@ -103,7 +103,7 @@ CSV_FILE <- readline(prompt = "Enter your path to CSV file: ")
 METADATA <- readline(prompt = "Enter your path to metadata file: ")
 
 # Polarity prefix to add to sample names ("pos" or "neg")
-POLARITY <- readline(prompt = "Enter the polarity (pos/neg): ")
+POLARITY <- tolower(readline(prompt = "Enter the polarity (pos/neg): "))
 
 # Step 0 — m/z rounding precision (decimals) before pivoting to wide format.
 MZ_ROUND_DIGITS <- 3
@@ -147,6 +147,7 @@ SUBSAMPLE_SEED <- 1
 # Metadata filter on polarity
 # =============================================================================
 
+metadata <- read.csv(METADATA, stringsAsFactors = FALSE)
 metadata <- metadata[metadata$polarity == POLARITY, ]
 
 # =============================================================================
@@ -154,21 +155,19 @@ metadata <- metadata[metadata$polarity == POLARITY, ]
 # =============================================================================
 
 # Phenotype names for the volcano comparison (exactly 2 phenotypes)
-# PHENOTYPES <- unique(metadata$phenotype[metadata$sample_type != "blank"])
-# cat("Your phenotypes are: PHENOTYPES")
+PHENOTYPES <- unique(metadata$phenotype[metadata$sample_type != "blank"])
+cat("Your phenotypes are: ", PHENOTYPES)
 # make loop so phenotypes can be chosen again if y or n!
-# chosen <- FALSE
-# while (chosen != TRUE) {
-# # PHENO_A <- readline(prompt = "Choose first phenotype for volcano: ")
-# PHENO_B <- readline(prompt = "Choose second phenotype for volcano: ")
-# cat("Your chosen phenotypes are ", PHENO_A " and ", PHENO_B)
-# answer <- tolower(readline(prompt = "Continue with chosen phenotypes (y/n)?))
-# if (answer == "y") {
-#  chosen <- TRUE
-#} 
-# }
-PHENO_A <- "UMUC3"
-PHENO_B <- "RT4"
+chosen <- FALSE
+while (chosen != TRUE) {
+  PHENO_A <- readline(prompt = "Choose first phenotype for volcano: ")
+  PHENO_B <- readline(prompt = "Choose second phenotype for volcano: ")
+  cat("Your chosen phenotypes are ", PHENO_A, " and ", PHENO_B)
+  answer <- tolower(readline(prompt = "Continue with chosen phenotypes (y/n)? "))
+  if (answer == "y") {
+    chosen <- TRUE
+    } 
+}
 
 # =============================================================================
 # Checkpoint utilities
