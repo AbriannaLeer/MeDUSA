@@ -100,12 +100,11 @@ POLARITY <- tolower(readline(prompt = "Enter the polarity (pos/neg): "))
 MZ_ROUND_DIGITS <- 3
 
 # Step 6 — minimum intensity threshold.
-#   Package default (mz_filter_magic, positive mode): 5000
-#   Package default (mz_filter_magic, negative mode): 2000
+#   Package default positive mode 5000, negative mode 2000
 STEP6_MIN_INTENSITY <- if (POLARITY == "pos") 5000 else 2000
 
 # Step 6 — missingness threshold
-#   Package default (mz_filter_magic / mz_filter_missingness): 0.1
+#   Package default 0.1
 STEP6_MISSINGNESS_THRES <- 0.10
 
 # -----------------------------------------------------------------------------
