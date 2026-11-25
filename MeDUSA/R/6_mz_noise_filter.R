@@ -55,7 +55,7 @@ mz_filter_blacklist <- function(input_mz_obj, blacklist = "", tolerance = 5e-6) 
 #' samples.
 #'
 #' Remove if peaks are significantly present.\cr
-#'     Zeros any intensities that are not in [Threshold]% of samples
+#'     Zeros any intensities that are not in Threshold % of samples
 #'
 #' @param input_mz_obj \cr
 #'   DataFrame : Input MZ-Obj
@@ -93,7 +93,7 @@ mz_filter_missingness <- function(input_mz_obj, threshold = 0.1, msg = "") {
 #' be set to zero.
 #'
 #' Remove if intensity is too low\cr
-#'     Zeros any intensities that below [intensity].
+#'     Zeros any intensities that below intensity.
 #'
 #' @param input_mz_obj \cr
 #'   DataFrame : Input MZ-Obj
