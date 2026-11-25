@@ -65,7 +65,7 @@ if (file.exists("renv.lock")) {
   renv::restore(prompt = FALSE)
 } else {
   cat("No renv.lock found. Installing packages from scratch...\n")
-  renv::init(bare = TRUE, bioconductor = TRUE)
+  renv::init(bare = TRUE)
 
   if (.Platform$OS.type == "windows") {
     options(install.packages.compile.from.source = "never")
