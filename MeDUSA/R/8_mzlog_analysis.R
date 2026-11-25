@@ -159,9 +159,9 @@ mzlog_analysis_welch <- function(phenoA_mz_obj, phenoB_mz_obj, adjust = "fdr", c
 #' # To fold values from "phenoA" over "phenoB"
 #' phenoA_mz_obj <- MeDUSA::mztools_filter(input_mzObj, metadata, "phenoA")
 #' phenoB_mz_obj <- MeDUSA::mztools_filter(input_mzObj, metadata, "phenoB")
-#' mzlog_analysis_volcano_magic(phenotype_a, phenotype_b) # run volcano with custom values
-#' mzlog_analysis_volcano_magic(phenotype_a, phenotype_b, fold_math = "median") # run volcano with median
-#' mzlog_analysis_volcano_magic(phenotype_a, phenotype_b, fold_math = "function(x) x*2") # run volcano with custom apply function (untested)
+#' mzlog_analysis_fold(phenotype_a, phenotype_b) # run volcano with custom values
+#' mzlog_analysis_fold(phenotype_a, phenotype_b, fold_math = "median") # run volcano with median
+#' mzlog_analysis_fold(phenotype_a, phenotype_b, fold_math = "function(x) x*2") # run volcano with custom apply function (untested)
 #' @return DataFrame with columns:
 #'  - mz   : Float
 #'  - fold : Float
@@ -183,45 +183,57 @@ mzlog_analysis_fold <- function(phenoA_mz_obj, phenoB_mz_obj, fold_math = "mean"
 
   return(data.frame(mz = df_l$mz, fold = valA - valB))
 }
-# *** Volcano Magic -----------------------------------------------------
-#' Volcano plot from filtered mz data
+
+# *** Volcano Plot -----------------------------------------------------
+#' welch: create volcano plot
 #'
 #' @description
 #' A volcano plot plots the fold change on the x-axis and the p-value of the
-#' t-test on the y-axis. The function mz_analysis_volcano_magic uses the m/z
-#' data set and performs fold change and t-test on the data to populate the
-#' plot.
-#' Also runs PCA along the way.
+#' t-test on the y-axis. The function plot_volcano assumes the user has already
+#' performed fold change and t-test, so these values must be passed into the
+#' function.
 #'
-#' @param phenotype_a \cr
-#'   DataFrame: Filtered metadata for phenotypeA
-#' @param phenotype_b \cr
-#'   DataFrame: Filtered metadata for phenotypeB
-#' @param cores
-#'   Integer: Can I has multithreading? (Need parallel)
-#' @param input_mzlog_obj \cr
-#'   DataFrame : Log2 of Input MZ-Obj
-#' @param metadata
-#'   DataFrame : Metadata-Obj of Samples
-#' @examples
-#' phenotype_a <- mztools_filter(mzLog, metadata, "PhenoA")
-#' phenotype_b <- mztools_filter(mzLog, metadata, "PhenoB")
-#' mzlog_analysis_volcano_magic(phenotype_a, phenotype_b, mzLog, metadata)
-#' @return list of mzlog_analysis_welch, mzlog_analysis_fold and plot_volcano  return objects
+#' Compare two phenotypes
+#'
+#' @param welch \cr
+#'   DataFrame : Output of Welch T test
+#' @param fold_change \cr
+#'   DataFrame: Output of Fold change
+#' @param title \cr
+#'   String: Title of the plot
+#' @examples: 
+#'   welch <- mzlog_analysis_welch(phenotype_a, phenotype_b, cores)
+#'   fold  <- mzlog_analysis_fold(phenotype_a, phenotype_b)
+#'   plot_volcano(welch, fold)
+#' @returns: dataframe with mz, p, fold and diff
 #' @export
-mzlog_analysis_volcano_magic <- function(phenotype_a, phenotype_b, input_mzlog_obj, metadata, cores = 2) {
-  welch <- mzlog_analysis_welch(phenotype_a, phenotype_b, cores = cores)
-
-  mzlog_analysis_pca(input_mzlog_obj[welch$p_05, ], metadata, plot_title = "PCA_Welch")
-
-  fold <- mzlog_analysis_fold(phenotype_a, phenotype_b)
-
-  title <- paste("VolcanoPlot", local.mz_polarity_guesser(phenotype_a), sep = "-")
-  volcano <- plot_volcano(welch, fold, title)
-
-  mzlog_analysis_pca(input_mzlog_obj[volcano$diff != "NONE", ], metadata, plot_title = "PCA_Volcano")
-
-  return(list("welch" = welch, "fold" = fold, "volcano" = volcano))
+plot_volcano <- function(welch, fold_change, title = "Volcano_Plot") {
+  if (sum(round(welch$mz, 6) != round(fold_change$mz, 6)) > 0) {
+    stop("ERROR:MeDUSA::plot_volcano : Welch mz does not match FoldChange mz")
+  }
+  df <- data.frame(
+    "mz" = welch$mz,
+    "p" = -log10(welch$p),
+    "fold" = fold_change$fold,
+    "diff" = rep("NONE", nrow(welch))
+  )
+  
+  df$diff[df$fold > 0.6 & df$p > -log10(0.05)] <- "UP"
+  df$diff[df$fold < -0.6 & df$p > -log10(0.05)] <- "DOWN"
+  
+  ggpubr::ggscatter(
+    data = df,
+    x = "fold", y = "p",
+    title = title,
+    shape = "diff",
+    color = "diff", palette = c("blue", "black", "red")
+  ) +
+    geom_vline(xintercept = c(-0.6, 0.6), col = "green") +
+    geom_hline(yintercept = -log10(0.05), col = "green")
+  
+  local.save_plot(title)
+  
+  df
 }
 
 # *** Heat Map  -----------------------------------------------------

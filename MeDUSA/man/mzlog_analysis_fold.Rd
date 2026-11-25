@@ -36,7 +36,7 @@ up/down regulated or mildly up/down regulated.
 # To fold values from "phenoA" over "phenoB"
 phenoA_mz_obj <- MeDUSA::mztools_filter(input_mzObj, metadata, "phenoA")
 phenoB_mz_obj <- MeDUSA::mztools_filter(input_mzObj, metadata, "phenoB")
-mzlog_analysis_volcano_magic(phenotype_a, phenotype_b) # run volcano with custom values
-mzlog_analysis_volcano_magic(phenotype_a, phenotype_b, fold_math = "median") # run volcano with median
-mzlog_analysis_volcano_magic(phenotype_a, phenotype_b, fold_math = "function(x) x*2") # run volcano with custom apply function (untested)
+mzlog_analysis_fold(phenotype_a, phenotype_b) # run volcano with custom values
+mzlog_analysis_fold(phenotype_a, phenotype_b, fold_math = "median") # run volcano with median
+mzlog_analysis_fold(phenotype_a, phenotype_b, fold_math = "function(x) x*2") # run volcano with custom apply function (untested)
 }

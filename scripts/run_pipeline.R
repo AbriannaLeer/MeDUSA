@@ -117,13 +117,15 @@ STEP7_HIGH_NOISE <- 5000
 # FALSE = skip the step and load its checkpoint from disk
 # -----------------------------------------------------------------------------
 RUN_STEP_0  <- TRUE
+# RUN_STEP_1 <- TRUE --> lipid function
 RUN_STEP_2  <- TRUE
 RUN_STEP_3  <- TRUE
 RUN_STEP_4  <- TRUE
+# RUN_STEP_5 <- TRUE --> CoV function
 RUN_STEP_5  <- TRUE
 RUN_STEP_6  <- TRUE
 RUN_STEP_7  <- TRUE
-RUN_STEP_8A <- TRUE
+RUN_STEP_8 <- TRUE
 RUN_STEP_9 <- TRUE
 
 # remove random runs
@@ -371,7 +373,7 @@ run_or_load_step(
 # =============================================================================
 run_or_load_step(
   step_id = "step6",
-  stage_name = "Step 6: Filtering (blacklist, missingness, intensity)",
+  stage_name = "Step 6: Noise Filtering (blacklist, missingness, intensity)",
   enabled = RUN_STEP_6,
   checkpoint_vars = c("mz_obj", "metadata", "qc", "isotopes"),
   expr = {
@@ -433,19 +435,11 @@ run_or_load_step(
     mem_report("before mz_post_magic")
 
     metadata <- metadata[metadata$sample_type != "blank", ]
-    
     mz_obj <- mz_post_imputation(mz_obj, low_noise = STEP7_LOW_NOISE, high_noise = STEP7_HIGH_NOISE)
-    cat("  Imputation done\n")
-    
     mz_obj <- mz_post_normalization(mz_obj, metadata, plot = FALSE)
-    cat("  Normalization done\n")
-    
     mzLog <- mz_post_log(mz_obj)
-    cat("  Log2 transform done\n")
-    
     mzLong <- mz_post_pivot_longer(mzLog, plot = FALSE)
-    cat("  Pivot longer done\n")
-    
+
     cat("  mzLog:",  nrow(mzLog),  "features x", ncol(mzLog) - 1, "samples\n")
     cat("  mzLong:", nrow(mzLong), "rows\n")
 
@@ -455,29 +449,37 @@ run_or_load_step(
   }
 )
 
-# # =============================================================================
-# # STEP 8a: Volcano Analysis
-# # =============================================================================
-# run_or_load_step(
-#   step_id = "step8a",
-#   stage_name = "Step 8a: Volcano Analysis",
-#   enabled = RUN_STEP_8A,
-#   checkpoint_vars = c("metadata", "post", "mzLong", "mzLog", "volcano"),
-#   expr = {
-#     cat("\n=== Step 8a: Volcano Analysis ===\n")
-# 
-#     phenoA_data <- mztools_filter(mzLog, metadata, PHENO_A)
-#     phenoB_data <- mztools_filter(mzLog, metadata, PHENO_B)
-# 
-#     volcano <- mzlog_analysis_volcano_magic(phenoA_data, phenoB_data, mzLog, metadata)
-# 
-#     cat("  Significant features (Welch):", sum(volcano$welch$p_05), "\n")
-# 
-#     rm(phenoA_data, phenoB_data)
-#     gc(full = TRUE)
-#   }
-# )
-# 
+# =============================================================================
+# STEP 8: Volcano Analysis
+# =============================================================================
+run_or_load_step(
+  step_id = "step8",
+  stage_name = "Step 8: Volcano Analysis",
+  enabled = RUN_STEP_8,
+  checkpoint_vars = c("metadata", "mzLong", "mzLog", "welch", "fold", "volcano"),
+  expr = {
+    cat("\n=== Step 8: Volcano Analysis ===\n")
+
+    phenoA_data <- mztools_filter(mzLog, metadata, PHENO_A)
+    phenoB_data <- mztools_filter(mzLog, metadata, PHENO_B)
+
+    # Welch t-test + PCA on significant features
+    welch <- mzlog_analysis_welch(phenoA_data, phenoB_data, cores = 2)
+    cat("  Significant features (Welch):", sum(volcano$welch$p_05), "\n")
+    mzlog_analysis_pca(mzLog[welch$p_05, ], metadata, plot_title = "PCA_Welch")
+    
+    # Fold change
+    fold <- mzlog_analysis_fold(phenoA_data, phenoB_data)
+    
+    # Volcano plot + PCA on volcano hits
+    volcano <- plot_volcano(welch, fold, title = paste("VolcanoPlot", POLARITY, sep = "-"))
+    mzlog_analysis_pca(mzLog[volcano$diff != "NONE", ], metadata, plot_title = "PCA_Volcano")
+    
+    rm(phenoA_data, phenoB_data)
+    gc(full = TRUE)
+  }
+)
+
 # # =============================================================================
 # # STEP 9: Compound Identification
 # # =============================================================================
@@ -486,8 +488,8 @@ run_or_load_step(
 #   stage_name = "Step 9: Compound Identification",
 #   enabled = RUN_STEP_9,
 #   checkpoint_vars = c(
-#     "metadata", "post", "mzLong", "mzLog",
-#     "volcano", "sig_mz", "hmdb_hits", "lipid_hits"
+#     "metadata", "mzLong", "mzLog",
+#     "welch", "fold", "volcano", "sig_mz", "hmdb_hits", "lipid_hits"
 #   ),
 #   expr = {
 #     cat("\n=== Step 9: Compound Identification ===\n")

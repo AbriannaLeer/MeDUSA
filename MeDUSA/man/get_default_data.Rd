@@ -13,8 +13,8 @@ get_default_data(type)
 Character : 'adduct' or 'blacklist'}
 }
 \value{
-dataframe( \link{adduct}name: Character,
-\link{adduct}value: Numeric )
+dataframe( adduct_name: Character,
+adduct_value: Numeric )
 }
 \description{
 The get_default_data function will return a list of default values including

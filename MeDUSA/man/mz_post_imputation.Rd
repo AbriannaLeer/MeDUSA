@@ -27,8 +27,8 @@ this without impacting the statistical outcome, the mz_post_imputation function
 is used to replace the zero values with a random number between 1 and a set
 noise value.
 
-Replace all <\link{low_noise} ("mostly zeros") with a randomized value
-between \link{low_noise} and \link{high_noise}
+Replace all <low_noise ("mostly zeros") with a randomized value
+between low_noise and high_noise
 }
 \examples{
 mz_post_imputation(input_mz_obj) # run imputation with standard noise levels
