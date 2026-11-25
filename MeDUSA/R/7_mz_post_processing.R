@@ -9,8 +9,8 @@
 #' is used to replace the zero values with a random number between 1 and a set
 #' noise value.
 #'
-#' Replace all <[low_noise] ("mostly zeros") with a randomized value
-#'   between [low_noise] and [high_noise]
+#' Replace all <low_noise ("mostly zeros") with a randomized value
+#'   between low_noise and high_noise
 #'
 #' @param input_mz_obj \cr
 #'   DataFrame : Input MZ-OBJ
@@ -158,79 +158,69 @@ mz_post_log <- function(input_mz_obj) {
   input_mz_obj
 }
 
-# *** mz_post_magic_stages -----------------------------------------------------
-#' MZ-OBJ
+# *** Log Transform -----------------------------------------------------
+#' MZLONG-OBJ Log Transform
 #'
 #' @description
-#' The mz_post_magic_stages is a helper function to execute all stages corresponding to the current post_magic stage.
-#' This helper function takes a stage name, the function itself and the function parameters as arguments and excecutes the lambda function.
+#' The mzlong_post_log function log2 transforms the intensities of the data set,
+#' after the data set has been restructured via the pivot_longer function. Log
+#' transformation of the data is highly recommended so that the observed m/z
+#' relationships are proportional and not additive, making the statistical
+#' analysis and interpretation more biologically relevant. Note that this
+#' function works with the pivot_longer object, not the standard mz_object.
 #'
+#'  - Requires: ggplot2
 #'
-#' @param stage_name \cr
-#'   String: The name of the phase to be executed
-#' @param stage_func \cr
-#'   Lambda: The function to be executed, as lambda
-#' @param ... \cr
-#'   Any parameters belonging to the function, using ellipsis for unknown amount of parameters
-#' @examples
-#' mz_post_magic_stages("mzlong_post_log", mzlong_post_log, input_mzlong, plot) # mzLog-OBJ
-#' @return MZ-OBJ
-#' @export
-mz_post_magic_stages <- function(stage_name, stage_func, ...) {
-  result <- tryCatch(
-    {
-      stage_func(...)
-    },
-    error = function(e) {
-      print(e)
-      stop("ERROR: in: ", stage_name)
-    }
-  )
-  result
-}
-
-# *** Process Magic -----------------------------------------------------
-#' MZ-OBJ Process Magic
-#'
-#' @description
-#' The mz_post_magic function will perform all of the recommended post-processing,
-#' including imputation to elimate intenstiy values of zero, PQN normalization
-#' to reduce the effects of dilution not attributed to the phenotype,
-#' pivot_longer to get the data structurally ready for statistical analysis,
-#' and a log2 transform for a biologically relevant proportional comparison of
-#' the data.
-#'
-#'  - Requires: ggplot2, tidyr
-#'
-#' @param input_mz_obj \cr
-#'   DataFrame : Input MZ-Obj
-#' @param metadata \cr
-#'   DataFrame : metadata object
+#' @param input_mzlong \cr
+#'   DataFrame : Input MZLONG-Obj
 #' @param plot \cr
 #'   Boolean   : to plot or not to plot
 #' @examples
-#' mz_post_magic(input_mz_obj, metadata) # run all post processing with standard parameters
-#' mz_post_magic(input_mz_obj, metadata, noise = c(100, 10000)) # run all post processing with custom noise
-#' @return c(mzLong_obj, mzLog_obj)
+#' mzlong_post_log(input_mz_obj, metadata) # run log2 on a mzlong (pivoted mz_obj)
+#' @return MzLong_obj
 #' @export
-mz_post_magic <- function(input_mz_obj, metadata, noise = c(10, 5000), plot = TRUE) {
-  input_mz_obj <- mz_post_magic_stages(
-    "mz_post_imputation",
-    mz_post_imputation, input_mz_obj, noise[1], noise[2]
-  )
-  print("INFO:MeDUSA::mz_post_magic: imputation success")
+mzlong_post_log <- function(input_mzlong, plot = TRUE) {
+  input_mzlong$log <- log2(input_mzlong$intensity)
+  if (plot) {
+    tmp <- select(input_mzlong, -intensity)
+    tmp$intensity <- tmp$log
+    mzlongpost.plot(tmp, local.mz_polarity_guesser(input_mzlong), "PivotLongLog")
+  }
+  input_mzlong
+}
 
-  input_mz_obj <- mz_post_magic_stages(
-    "mz_post_normalization",
-    mz_post_normalization, input_mz_obj, metadata, plot
-  )
-  print("INFO:MeDUSA::mz_post_magic: normalization success")
-
-  out <- mz_post_magic_stages("mz_post_log", mz_post_log, input_mz_obj)
-  print("INFO:MeDUSA::mz_post_magic: log_transform success")
-
-  input_mzlong <- mz_post_magic_stages("mz_post_pivot_longer", mz_post_pivot_longer, out)
-  print("INFO:MeDUSA::mz_post_magic: pivot_longer success")
-
-  list("mzLong" = input_mzlong, "mzLog" = out)
+mzlongpost.plot <- function(input_mzlong, polarity, plot_title) {
+  ggpubr::ggscatter(
+    input_mzlong,
+    x      = "sample_name", y    = "intensity",
+    xlab   = "Sample_Name", ylab = "Intensity",
+    shape  = 20,            size = 1,
+    color  = "intensity",
+    title  = paste(plot_title, polarity, sep = ": "),
+    rotate = T
+  ) +
+    ggplot2::scale_x_discrete(
+      label = sapply(strsplit(input_mzlong$sample_name, "_"), function(x) paste(x[-2:-1], collapse = ".")),
+      guide = ggplot2::guide_axis(n.dodge = 3)
+    ) +
+    ggplot2::theme(legend.position = "none", axis.text.y = ggplot2::element_text(size = ggplot2::rel(0.5)))
+  
+  local.save_plot(paste(plot_title, polarity, sep = "-"))
+  
+  ggpubr::ggboxplot(
+    input_mzlong,
+    x             = "sample_name", y            = "intensity",
+    xlab          = "Sample_Name", ylab         = "Intensity",
+    outlier.shape = 3,             outlier.size = 0.1,
+    title         = paste(plot_title, "box:", polarity, sep = " "),
+    legend        = "none",
+    rotate        = T
+  ) +
+    ggplot2::scale_x_discrete(
+      label = sapply(strsplit(input_mzlong$sample_name, "_"), function(x) paste(x[-2:-1], collapse = ".")),
+      guide = ggplot2::guide_axis(n.dodge = 3)
+    ) +
+    ggplot2::theme(legend.position = "none", axis.text.y = ggplot2::element_text(size = ggplot2::rel(0.5)))
+  
+  local.save_plot(paste(plot_title, "box", polarity, sep = "-"))
 }

@@ -27,7 +27,7 @@ removes m/z values that have a zero value in a specified percentage of the
 samples.
 
 Remove if peaks are significantly present.\cr
-Zeros any intensities that are not in \link{Threshold}\% of samples
+Zeros any intensities that are not in Threshold \% of samples
 }
 \examples{
 mz_filter_missingness(input_mz_obj) # Run missingness filtering with custom values

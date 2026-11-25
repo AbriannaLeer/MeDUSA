@@ -28,7 +28,7 @@ threshold for the minimum intensity, and any intensity below this value will
 be set to zero.
 
 Remove if intensity is too low\cr
-Zeros any intensities that below \link{intensity}.
+Zeros any intensities that below intensity.
 }
 \examples{
 mz_filter_low_intensity(input_mz_obj) # Run low intensity filtering with custom values

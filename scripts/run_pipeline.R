@@ -107,6 +107,10 @@ STEP6_MIN_INTENSITY <- if (POLARITY == "pos") 5000 else 2000
 #   Package default 0.1
 STEP6_MISSINGNESS_THRES <- 0.10
 
+# Step 7: imputation noise range (package default: 10 / 5000)
+STEP7_LOW_NOISE  <- 10
+STEP7_HIGH_NOISE <- 5000
+
 # -----------------------------------------------------------------------------
 # STEP SWITCHES
 # TRUE  = run the step and save a checkpoint
@@ -411,38 +415,46 @@ run_or_load_step(
   }
 )
 
-# # =============================================================================
-# # STEP 7: Post-Processing (imputation, normalization, log2)
-# # =============================================================================
-# run_or_load_step(
-#   step_id = "step7",
-#   stage_name = "Step 7: Post-Processing",
-#   enabled = RUN_STEP_7,
-#   checkpoint_vars = c("mz_obj", "metadata", "post", "mzLong", "mzLog"),
-#   expr = {
-#     cat("\n=== Step 7: Post-Processing ===\n")
-# 
-#     # Free large upstream objects we no longer need in this step
-#     if (exists("isotopes",   envir = .GlobalEnv)) rm("isotopes",   envir = .GlobalEnv)
-#     if (exists("qc", envir = .GlobalEnv)) rm("qc", envir = .GlobalEnv)
-#     gc(full = TRUE)
-#     mem_report("before mz_post_magic")
-# 
-#     metadata <- metadata[metadata$sample_type != "blank", ]
-# 
-#     post   <- mz_post_magic(mz_obj, metadata, plot = FALSE)
-#     mzLong <- post$mzLong
-#     mzLog  <- post$mzLog
-# 
-#     cat("  mzLog:",  nrow(mzLog),  "features x", ncol(mzLog) - 1, "samples\n")
-#     cat("  mzLong:", nrow(mzLong), "rows\n")
-# 
-#     # Drop the (now redundant) wide pre-normalization matrix
-#     rm(mz_obj)
-#     gc(full = TRUE)
-#   }
-# )
-# 
+# =============================================================================
+# STEP 7: Post-Processing (imputation, normalization, log2)
+# =============================================================================
+run_or_load_step(
+  step_id = "step7",
+  stage_name = "Step 7: Post-Processing",
+  enabled = RUN_STEP_7,
+  checkpoint_vars = c("metadata", "mzLong", "mzLog"),
+  expr = {
+    cat("\n=== Step 7: Post-Processing ===\n")
+
+    # Free large upstream objects we no longer need in this step
+    if (exists("isotopes",   envir = .GlobalEnv)) rm("isotopes",   envir = .GlobalEnv)
+    if (exists("qc", envir = .GlobalEnv)) rm("qc", envir = .GlobalEnv)
+    gc(full = TRUE)
+    mem_report("before mz_post_magic")
+
+    metadata <- metadata[metadata$sample_type != "blank", ]
+    
+    mz_obj <- mz_post_imputation(mz_obj, low_noise = STEP7_LOW_NOISE, high_noise = STEP7_HIGH_NOISE)
+    cat("  Imputation done\n")
+    
+    mz_obj <- mz_post_normalization(mz_obj, metadata, plot = FALSE)
+    cat("  Normalization done\n")
+    
+    mzLog <- mz_post_log(mz_obj)
+    cat("  Log2 transform done\n")
+    
+    mzLong <- mz_post_pivot_longer(mzLog, plot = FALSE)
+    cat("  Pivot longer done\n")
+    
+    cat("  mzLog:",  nrow(mzLog),  "features x", ncol(mzLog) - 1, "samples\n")
+    cat("  mzLong:", nrow(mzLong), "rows\n")
+
+    # Drop the (now redundant) wide pre-normalization matrix
+    rm(mz_obj)
+    gc(full = TRUE)
+  }
+)
+
 # # =============================================================================
 # # STEP 8a: Volcano Analysis
 # # =============================================================================

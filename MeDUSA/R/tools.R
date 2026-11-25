@@ -45,8 +45,8 @@ mztools_filter <- function(input_mzobj, metadata, filter_value, filter_name = "p
 #' @param type \cr
 #'   Character : 'adduct' or 'blacklist'
 #'
-#' @returns dataframe( [adduct]name: Character,
-#'                     [adduct]value: Numeric )
+#' @returns dataframe( adduct_name: Character,
+#'                     adduct_value: Numeric )
 #'
 #' @export
 get_default_data <- function(type) {

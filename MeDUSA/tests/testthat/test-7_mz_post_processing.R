@@ -37,13 +37,3 @@ test_that("mz_post_normalization: HappyPath", {
   meta <- data.frame(read.csv("testdata/meta_neg.csv"))
   expect_identical(mz_post_pivot_longer(mz_neg, F), pivot_longer_happy)
 })
-
-## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-##     mz_post_magic                                                          ----
-## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-test_that("mz_post_normalization: HappyPath", {
-  load("testdata/mz_neg.Rdata")
-  load("testdata/asserts/pp_magic_happy.Rdata")
-  meta <- data.frame(read.csv("testdata/meta_neg.csv"))
-  expect_equal(mz_post_magic(mz_neg, meta, noise = c(0, 1), F), pp_magic_happy)
-})
