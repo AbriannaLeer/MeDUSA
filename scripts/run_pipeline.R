@@ -362,28 +362,55 @@ run_or_load_step(
   }
 )
 
-# # =============================================================================
-# # STEP 6: Noise Filtering — STRICTER NOW, runs before heavy step 7
-# # =============================================================================
-# run_or_load_step(
-#   step_id = "step6",
-#   stage_name = "Step 6: Filtering (blacklist, missingness, intensity)",
-#   enabled = RUN_STEP_6,
-#   checkpoint_vars = c("mz_obj", "metadata", "qc", "isotopes"),
-#   expr = {
-#     cat("\n=== Step 6: Filtering (blacklist, missingness, intensity) ===\n")
-#     cat("  Using min_intensity =", STEP6_MIN_INTENSITY,
-#         ", missingness_threshold =", STEP6_MISSINGNESS_THRES, "\n")
-#     mz_obj <- mz_filter_magic(
-#       mz_obj,
-#       min_intensity         = STEP6_MIN_INTENSITY,
-#       missingness_threshold = STEP6_MISSINGNESS_THRES,
-#       blacklist             = TRUE
-#     )
-#     cat("  After filtering:", nrow(mz_obj), "features remaining\n")
-#   }
-# )
-# 
+# =============================================================================
+# STEP 6: Noise Filtering — STRICTER NOW, runs before heavy step 7
+# =============================================================================
+run_or_load_step(
+  step_id = "step6",
+  stage_name = "Step 6: Filtering (blacklist, missingness, intensity)",
+  enabled = RUN_STEP_6,
+  checkpoint_vars = c("mz_obj", "metadata", "qc", "isotopes"),
+  expr = {
+    cat("\n=== Step 6: Filtering (blacklist, missingness, intensity) ===\n")
+    cat("  Using min_intensity =", STEP6_MIN_INTENSITY,
+        ", missingness_threshold =", STEP6_MISSINGNESS_THRES, "\n")
+    
+    min_intensity <- STEP6_MIN_INTENSITY
+    missingness_threshold <- STEP6_MISSINGNESS_THRES
+    blacklist <- NULL
+    
+    if (!is.null(blacklist)) {
+      if (blacklist == TRUE) {
+        mz_obj <- mz_filter_blacklist(mz_obj)
+      } else {
+        mz_obj <- mz_filter_blacklist(mz_obj, blacklist = blacklist)
+      }
+    }
+    if (!is.null(missingness_threshold)) {
+      mz_obj <- mz_filter_missingness(mz_obj, missingness_threshold)
+    } else {
+      default_missingness <- 0.1
+      print(paste0("INFO:MeDUSA::mz_filter_magic: Using 'magic' missingness_threshold:", default_missingness))
+      mz_obj <- mz_filter_missingness(mz_obj, threshold = default_missingness)
+    }
+    if (is.null(min_intensity)) {
+      min_intensity <- tryCatch(
+        {
+          local.mz_polarity_guesser(mz_obj, pos_return = 5000, neg_return = 2000)
+        },
+        error = function(e) {
+          print(e)
+          stop("ERROR:MeDUSA::mz_filter_magic: Could not guess positive or negative from colnames
+        Please specify min_intensity")
+        }
+      )
+      print(paste0("INFO:MeDUSA::mz_filter_magic: Using 'magic' min_intensity: ", min_intensity))
+    }
+    mz_obj <- mz_filter_low_intensity(mz_obj, min_intensity)
+    cat("  After filtering:", nrow(mz_obj), "features remaining\n")
+  }
+)
+
 # # =============================================================================
 # # STEP 7: Post-Processing (imputation, normalization, log2)
 # # =============================================================================
