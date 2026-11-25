@@ -18,15 +18,16 @@ Dependencies : dplyr}
 null (only errors if metadata mismatches sample data)
 }
 \description{
-The metadata file is used to filter the mz_obj to easily idetify samples by phenotype,
-type (i.e. blank/cell/media), fltered_out (blacklisting), or anything else that the user
+The metadata file is used to filter the mz_obj to easily identify samples by phenotype,
+type (i.e. blank/cell/media), filtered_out (blacklisting), or anything else that the user
 chooses to differentiate samples by.
 Metadata requirements are:
 Includes at least : data.frame(sample_name("character),
 type("character"),
 phenotype("character"),
-filtered_out("logical"))
-Ignoring polarity in mz_obj. All mz_obj columns must be found in metadata$sample_name and vice-versa.
+filtered_out("logical")),
+polarity("character")
+All mz_obj columns must be found in metadata$sample_name and vice-versa.
 }
 \examples{
 mz_quality_meta_check(input_mz_obj, meta) # run meta checks

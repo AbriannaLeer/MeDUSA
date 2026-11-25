@@ -130,15 +130,16 @@ mzmetrics_quality_plot <- function(mz_metrics, focus, title = F, plot_dim = c(8,
 #' Does the metadata seem ok
 #'
 #' @description
-#' The metadata file is used to filter the mz_obj to easily idetify samples by phenotype,
-#' type (i.e. blank/cell/media), fltered_out (blacklisting), or anything else that the user
+#' The metadata file is used to filter the mz_obj to easily identify samples by phenotype,
+#' type (i.e. blank/cell/media), filtered_out (blacklisting), or anything else that the user
 #' chooses to differentiate samples by.
 #' Metadata requirements are:
 #'   Includes at least : data.frame(sample_name("character),
 #'                                  type("character"),
 #'                                  phenotype("character"),
-#'                                  filtered_out("logical"))
-#'   Ignoring polarity in mz_obj. All mz_obj columns must be found in metadata$sample_name and vice-versa.
+#'                                  filtered_out("logical")),
+#'                                  polarity("character")
+#'   All mz_obj columns must be found in metadata$sample_name and vice-versa.
 #'
 #' @param input_mz_obj \cr
 #'   DataFrame : Input MZ-Obj
@@ -152,7 +153,8 @@ mzmetrics_quality_plot <- function(mz_metrics, focus, title = F, plot_dim = c(8,
 #' @export
 mz_quality_meta_check <- function(input_mz_obj, meta) {
   # TODO: Having fewer underscores breaks future regex, needs hardening
-  print("LOG: MeDUSA::mz_quality_meta_check: meta$sample_name currently expects the format '[project]_[sampletType]_[sampleNumber]'")
+  # example sample_name: B_20260318_1
+  print("LOG: MeDUSA::mz_quality_meta_check: meta$sample_name currently expects the format '[phenotype]_[date]_[sampleNumber]'")
   meta <- local.meta_polarity_fixer(input_mz_obj, meta)
   .subset_check <- function(listA, listB, msg) {
     missing <- listA[!(listA %in% listB)]
@@ -189,27 +191,4 @@ mz_quality_meta_check <- function(input_mz_obj, meta) {
   if (length(error) > 0) {
     stop(paste0("ERROR: MeDUSA::mz_quality_meta_check: ", error, "\n"))
   }
-}
-
-# *** Quality Magic -----------------------------------------------------
-#' MZ-OBJ Quality Magic
-#' Run all the quality things. Quality metrics, meta checks & generate plots
-#'
-#' @param input_mz_obj \cr
-#'   DataFrame : Input MZ-Obj
-#' @param meta \cr
-#'   DataFrame : metadata object
-#' @param cores
-#'   Integer: Can I has multithreading? (Need parallel)
-#'
-#' Dependencies : dplyr
-#' @examples
-#' mz_quality_magic(input_mz_obj, meta) # run all the things
-#' @return Returns a dataframe of samples by metrics
-#' @export
-mz_quality_magic <- function(input_mz_obj, meta, cores = 2) {
-  mz_quality_meta_check(input_mz_obj, meta)
-  qc <- mz_quality_metrics(input_mz_obj, cores)
-  mzmetrics_quality_plot_all(qc)
-  qc
 }

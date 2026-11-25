@@ -229,6 +229,8 @@ run_or_load_step(
     cat("\n=== Step 0: Loading CSV and creating MZ-OBJ ===\n")
 
     raw_all <- read.csv(CSV_FILE, stringsAsFactors = FALSE, check.names = FALSE)
+    # regex to only get expected sample name pattern '[phenotype]_[date]_[sampleNumber]'
+    colnames(raw_all) <- gsub("^([^_]+_[^_]+_[^_.]+).*$", "\\1", colnames(raw_all))
     # change to long format (mz, sample_name, intensity)
     raw_all <- raw_all |>
       pivot_longer(
@@ -300,8 +302,11 @@ run_or_load_step(
   checkpoint_vars = c("mz_obj", "metadata", "qc_metrics"),
   expr = {
     cat("\n=== Step 2: Quality Check ===\n")
-    qc_metrics <- mz_quality_magic(mz_obj, metadata)
-    print(head(qc_metrics))
+    
+    mz_quality_meta_check(mz_obj, metadata)
+    qc <- mz_quality_metrics(mz_obj, cores = 2)
+    mzmetrics_quality_plot_all(qc)
+    print(head(qc))
   }
 )
 
@@ -331,165 +336,164 @@ run_or_load_step(
   }
 )
 
-# =============================================================================
-# STEP 4: Mass Defect Filter
-# =============================================================================
-run_or_load_step(
-  step_id = "step4",
-  stage_name = "Step 4: Mass Defect Filter",
-  enabled = RUN_STEP_4,
-  checkpoint_vars = c("mz_obj", "metadata", "qc_metrics"),
-  expr = {
-    cat("\n=== Step 4: Mass Defect Filter ===\n")
-    mz_obj <- mz_mass_defect(mz_obj)
-    cat("  After mass defect:", nrow(mz_obj), "features remaining\n")
-  }
-)
-
-# =============================================================================
-# STEP 5: Isotope Tagging
-# =============================================================================
-run_or_load_step(
-  step_id = "step5",
-  stage_name = "Step 5: Isotope Tagging",
-  enabled = RUN_STEP_5,
-  checkpoint_vars = c("mz_obj", "metadata", "qc_metrics", "isotopes"),
-  expr = {
-    cat("\n=== Step 5: Isotope Tagging ===\n")
-    isotopes <- mz_tag_isotope_hunter(mz_obj)
-    cat("  Isotope groups found:", length(isotopes), "\n")
-  }
-)
-
-# =============================================================================
-# STEP 6: Noise Filtering — STRICTER NOW, runs before heavy step 7
-# =============================================================================
-run_or_load_step(
-  step_id = "step6",
-  stage_name = "Step 6: Filtering (blacklist, missingness, intensity)",
-  enabled = RUN_STEP_6,
-  checkpoint_vars = c("mz_obj", "metadata", "qc_metrics", "isotopes"),
-  expr = {
-    cat("\n=== Step 6: Filtering (blacklist, missingness, intensity) ===\n")
-    cat("  Using min_intensity =", STEP6_MIN_INTENSITY,
-        ", missingness_threshold =", STEP6_MISSINGNESS_THRES, "\n")
-
-    mz_obj <- mz_filter_magic(
-      mz_obj,
-      min_intensity         = STEP6_MIN_INTENSITY,
-      missingness_threshold = STEP6_MISSINGNESS_THRES,
-      blacklist             = TRUE
-    )
-    cat("  After filtering:", nrow(mz_obj), "features remaining\n")
-  }
-)
-
-# =============================================================================
-# STEP 7: Post-Processing (imputation, normalization, log2)
-# =============================================================================
-run_or_load_step(
-  step_id = "step7",
-  stage_name = "Step 7: Post-Processing",
-  enabled = RUN_STEP_7,
-  checkpoint_vars = c("mz_obj", "metadata", "post", "mzLong", "mzLog"),
-  expr = {
-    cat("\n=== Step 7: Post-Processing ===\n")
-
-    # Free large upstream objects we no longer need in this step
-    if (exists("isotopes",   envir = .GlobalEnv)) rm("isotopes",   envir = .GlobalEnv)
-    if (exists("qc_metrics", envir = .GlobalEnv)) rm("qc_metrics", envir = .GlobalEnv)
-    gc(full = TRUE)
-    mem_report("before mz_post_magic")
-
-    metadata <- metadata[metadata$sample_type != "blank", ]
-
-    post   <- mz_post_magic(mz_obj, metadata, plot = FALSE)
-    mzLong <- post$mzLong
-    mzLog  <- post$mzLog
-
-    cat("  mzLog:",  nrow(mzLog),  "features x", ncol(mzLog) - 1, "samples\n")
-    cat("  mzLong:", nrow(mzLong), "rows\n")
-
-    # Drop the (now redundant) wide pre-normalization matrix
-    rm(mz_obj)
-    gc(full = TRUE)
-  }
-)
-
-# =============================================================================
-# STEP 8a: Volcano Analysis
-# =============================================================================
-run_or_load_step(
-  step_id = "step8a",
-  stage_name = "Step 8a: Volcano Analysis",
-  enabled = RUN_STEP_8A,
-  checkpoint_vars = c("metadata", "post", "mzLong", "mzLog", "volcano"),
-  expr = {
-    cat("\n=== Step 8a: Volcano Analysis ===\n")
-
-    phenoA_data <- mztools_filter(mzLog, metadata, PHENO_A)
-    phenoB_data <- mztools_filter(mzLog, metadata, PHENO_B)
-
-    volcano <- mzlog_analysis_volcano_magic(phenoA_data, phenoB_data, mzLog, metadata)
-
-    cat("  Significant features (Welch):", sum(volcano$welch$p_05), "\n")
-
-    rm(phenoA_data, phenoB_data)
-    gc(full = TRUE)
-  }
-)
-
-# =============================================================================
-# STEP 9: Compound Identification
-# =============================================================================
-run_or_load_step(
-  step_id = "step9",
-  stage_name = "Step 9: Compound Identification",
-  enabled = RUN_STEP_9,
-  checkpoint_vars = c(
-    "metadata", "post", "mzLong", "mzLog",
-    "volcano", "sig_mz", "hmdb_hits", "lipid_hits"
-  ),
-  expr = {
-    cat("\n=== Step 9: Compound Identification ===\n")
-    
-    sig_mz1 <- volcano$welch[volcano$welch$p_05, "mz", drop = FALSE]
-    sig_mz1$mz <- as.numeric(sig_mz1$mz)
-    sig_mz <- sig_mz1[is.finite(sig_mz1$mz), , drop = FALSE]
-    
-    if (length(sig_mz) > 0) {
-      cat("  Identifying", length(sig_mz), "features...\n")
-      
-      hmdb_hits  <- identify_hmdb(sig_mz[, c("mz")], adducts = c("M+H", "M+Na"))
-      lipid_hits <- identify_lipids(sig_mz[, c("mz")], adducts = c("M+H", "M+Na"))
-      
-      cat("  HMDB hits:",  nrow(hmdb_hits),  "\n")
-      cat("  Lipid hits:", nrow(lipid_hits), "\n")
-      
-      write.csv(hmdb_hits,  file.path(out_dir, "hmdb_hits.csv"),  row.names = FALSE)
-      write.csv(lipid_hits, file.path(out_dir, "lipid_hits.csv"), row.names = FALSE)
-      
-      cat("  Results saved to", out_dir, "\n")
-    } else {
-      hmdb_hits  <- data.frame()
-      lipid_hits <- data.frame()
-      cat("  No significant features found for identification.\n")
-    }
-  }
-)
-
-cat("\n=== Pipeline complete! ===\n")
-
-PIPELINE_END <- Sys.time()
-TOTAL_RUNTIME <- as.numeric(difftime(PIPELINE_END, PIPELINE_START, units = "secs"))
-
-cat("\n============================================================\n")
-cat("Script :", SCRIPT_NAME, "\n")
-cat("End    :", format(PIPELINE_END, "%Y-%m-%d %H:%M:%S"), "\n")
-cat(sprintf("Total runtime : %.3f sec\n", TOTAL_RUNTIME))
-cat("============================================================\n")
-
-# =============================================================================
-# Export runtime table + visualization
-# =============================================================================
-source("scripts/runtime_report.R")
+# # =============================================================================
+# # STEP 4: Mass Defect Filter
+# # =============================================================================
+# run_or_load_step(
+#   step_id = "step4",
+#   stage_name = "Step 4: Mass Defect Filter",
+#   enabled = RUN_STEP_4,
+#   checkpoint_vars = c("mz_obj", "metadata", "qc_metrics"),
+#   expr = {
+#     cat("\n=== Step 4: Mass Defect Filter ===\n")
+#     mz_obj <- mz_mass_defect(mz_obj)
+#     cat("  After mass defect:", nrow(mz_obj), "features remaining\n")
+#   }
+# )
+# 
+# # =============================================================================
+# # STEP 5: Isotope Tagging
+# # =============================================================================
+# run_or_load_step(
+#   step_id = "step5",
+#   stage_name = "Step 5: Isotope Tagging",
+#   enabled = RUN_STEP_5,
+#   checkpoint_vars = c("mz_obj", "metadata", "qc_metrics", "isotopes"),
+#   expr = {
+#     cat("\n=== Step 5: Isotope Tagging ===\n")
+#     isotopes <- mz_tag_isotope_hunter(mz_obj)
+#     cat("  Isotope groups found:", length(isotopes), "\n")
+#   }
+# )
+# 
+# # =============================================================================
+# # STEP 6: Noise Filtering — STRICTER NOW, runs before heavy step 7
+# # =============================================================================
+# run_or_load_step(
+#   step_id = "step6",
+#   stage_name = "Step 6: Filtering (blacklist, missingness, intensity)",
+#   enabled = RUN_STEP_6,
+#   checkpoint_vars = c("mz_obj", "metadata", "qc_metrics", "isotopes"),
+#   expr = {
+#     cat("\n=== Step 6: Filtering (blacklist, missingness, intensity) ===\n")
+#     cat("  Using min_intensity =", STEP6_MIN_INTENSITY,
+#         ", missingness_threshold =", STEP6_MISSINGNESS_THRES, "\n")
+#     mz_obj <- mz_filter_magic(
+#       mz_obj,
+#       min_intensity         = STEP6_MIN_INTENSITY,
+#       missingness_threshold = STEP6_MISSINGNESS_THRES,
+#       blacklist             = TRUE
+#     )
+#     cat("  After filtering:", nrow(mz_obj), "features remaining\n")
+#   }
+# )
+# 
+# # =============================================================================
+# # STEP 7: Post-Processing (imputation, normalization, log2)
+# # =============================================================================
+# run_or_load_step(
+#   step_id = "step7",
+#   stage_name = "Step 7: Post-Processing",
+#   enabled = RUN_STEP_7,
+#   checkpoint_vars = c("mz_obj", "metadata", "post", "mzLong", "mzLog"),
+#   expr = {
+#     cat("\n=== Step 7: Post-Processing ===\n")
+# 
+#     # Free large upstream objects we no longer need in this step
+#     if (exists("isotopes",   envir = .GlobalEnv)) rm("isotopes",   envir = .GlobalEnv)
+#     if (exists("qc_metrics", envir = .GlobalEnv)) rm("qc_metrics", envir = .GlobalEnv)
+#     gc(full = TRUE)
+#     mem_report("before mz_post_magic")
+# 
+#     metadata <- metadata[metadata$sample_type != "blank", ]
+# 
+#     post   <- mz_post_magic(mz_obj, metadata, plot = FALSE)
+#     mzLong <- post$mzLong
+#     mzLog  <- post$mzLog
+# 
+#     cat("  mzLog:",  nrow(mzLog),  "features x", ncol(mzLog) - 1, "samples\n")
+#     cat("  mzLong:", nrow(mzLong), "rows\n")
+# 
+#     # Drop the (now redundant) wide pre-normalization matrix
+#     rm(mz_obj)
+#     gc(full = TRUE)
+#   }
+# )
+# 
+# # =============================================================================
+# # STEP 8a: Volcano Analysis
+# # =============================================================================
+# run_or_load_step(
+#   step_id = "step8a",
+#   stage_name = "Step 8a: Volcano Analysis",
+#   enabled = RUN_STEP_8A,
+#   checkpoint_vars = c("metadata", "post", "mzLong", "mzLog", "volcano"),
+#   expr = {
+#     cat("\n=== Step 8a: Volcano Analysis ===\n")
+# 
+#     phenoA_data <- mztools_filter(mzLog, metadata, PHENO_A)
+#     phenoB_data <- mztools_filter(mzLog, metadata, PHENO_B)
+# 
+#     volcano <- mzlog_analysis_volcano_magic(phenoA_data, phenoB_data, mzLog, metadata)
+# 
+#     cat("  Significant features (Welch):", sum(volcano$welch$p_05), "\n")
+# 
+#     rm(phenoA_data, phenoB_data)
+#     gc(full = TRUE)
+#   }
+# )
+# 
+# # =============================================================================
+# # STEP 9: Compound Identification
+# # =============================================================================
+# run_or_load_step(
+#   step_id = "step9",
+#   stage_name = "Step 9: Compound Identification",
+#   enabled = RUN_STEP_9,
+#   checkpoint_vars = c(
+#     "metadata", "post", "mzLong", "mzLog",
+#     "volcano", "sig_mz", "hmdb_hits", "lipid_hits"
+#   ),
+#   expr = {
+#     cat("\n=== Step 9: Compound Identification ===\n")
+#     
+#     sig_mz1 <- volcano$welch[volcano$welch$p_05, "mz", drop = FALSE]
+#     sig_mz1$mz <- as.numeric(sig_mz1$mz)
+#     sig_mz <- sig_mz1[is.finite(sig_mz1$mz), , drop = FALSE]
+#     
+#     if (length(sig_mz) > 0) {
+#       cat("  Identifying", length(sig_mz), "features...\n")
+#       
+#       hmdb_hits  <- identify_hmdb(sig_mz[, c("mz")], adducts = c("M+H", "M+Na"))
+#       lipid_hits <- identify_lipids(sig_mz[, c("mz")], adducts = c("M+H", "M+Na"))
+#       
+#       cat("  HMDB hits:",  nrow(hmdb_hits),  "\n")
+#       cat("  Lipid hits:", nrow(lipid_hits), "\n")
+#       
+#       write.csv(hmdb_hits,  file.path(out_dir, "hmdb_hits.csv"),  row.names = FALSE)
+#       write.csv(lipid_hits, file.path(out_dir, "lipid_hits.csv"), row.names = FALSE)
+#       
+#       cat("  Results saved to", out_dir, "\n")
+#     } else {
+#       hmdb_hits  <- data.frame()
+#       lipid_hits <- data.frame()
+#       cat("  No significant features found for identification.\n")
+#     }
+#   }
+# )
+# 
+# cat("\n=== Pipeline complete! ===\n")
+# 
+# PIPELINE_END <- Sys.time()
+# TOTAL_RUNTIME <- as.numeric(difftime(PIPELINE_END, PIPELINE_START, units = "secs"))
+# 
+# cat("\n============================================================\n")
+# cat("Script :", SCRIPT_NAME, "\n")
+# cat("End    :", format(PIPELINE_END, "%Y-%m-%d %H:%M:%S"), "\n")
+# cat(sprintf("Total runtime : %.3f sec\n", TOTAL_RUNTIME))
+# cat("============================================================\n")
+# 
+# # =============================================================================
+# # Export runtime table + visualization
+# # =============================================================================
+# source("scripts/runtime_report.R")
