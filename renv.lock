@@ -5,6 +5,26 @@
       {
         "Name": "CRAN",
         "URL": "https://cloud.r-project.org"
+      },
+      {
+        "Name": "BioCsoft",
+        "URL": "https://bioconductor.org/packages/3.23/bioc"
+      },
+      {
+        "Name": "BioCann",
+        "URL": "https://bioconductor.org/packages/3.23/data/annotation"
+      },
+      {
+        "Name": "BioCexp",
+        "URL": "https://bioconductor.org/packages/3.23/data/experiment"
+      },
+      {
+        "Name": "BioCworkflows",
+        "URL": "https://bioconductor.org/packages/3.23/workflows"
+      },
+      {
+        "Name": "BioCbooks",
+        "URL": "https://bioconductor.org/packages/3.23/books"
       }
     ]
   },
@@ -12,210 +32,6 @@
     "Version": "3.23"
   },
   "Packages": {
-    "Biobase": {
-      "Package": "Biobase",
-      "Version": "2.72.0",
-      "Source": "Bioconductor",
-      "Title": "Biobase: Base functions for Bioconductor",
-      "Description": "Functions that are needed by many other packages or which replace R functions.",
-      "biocViews": "Infrastructure",
-      "URL": "https://bioconductor.org/packages/Biobase",
-      "BugReports": "https://github.com/Bioconductor/Biobase/issues",
-      "License": "Artistic-2.0",
-      "Authors@R": "c( person(\"R.\", \"Gentleman\", role=\"aut\"), person(\"V.\", \"Carey\", role = \"aut\"), person(\"M.\", \"Morgan\", role=\"aut\"), person(\"S.\", \"Falcon\", role=\"aut\"), person(\"Haleema\", \"Khan\", role = \"ctb\", comment = \"'esApply' and 'BiobaseDevelopment' vignette translation from Sweave to Rmarkdown / HTML\" ), person(\"Bioconductor Package Maintainer\", role = \"cre\", email = \"maintainer@bioconductor.org\" ))",
-      "Suggests": [
-        "tools",
-        "tkWidgets",
-        "ALL",
-        "RUnit",
-        "golubEsets",
-        "BiocStyle",
-        "knitr",
-        "limma"
-      ],
-      "Depends": [
-        "R (>= 2.10)",
-        "BiocGenerics (>= 0.27.1)",
-        "utils"
-      ],
-      "Imports": [
-        "methods"
-      ],
-      "VignetteBuilder": "knitr",
-      "LazyLoad": "yes",
-      "Collate": "tools.R strings.R environment.R vignettes.R packages.R AllGenerics.R VersionsClass.R VersionedClasses.R methods-VersionsNull.R methods-VersionedClass.R DataClasses.R methods-aggregator.R methods-container.R methods-MIAxE.R methods-MIAME.R methods-AssayData.R methods-AnnotatedDataFrame.R methods-eSet.R methods-ExpressionSet.R methods-MultiSet.R methods-SnpSet.R methods-NChannelSet.R anyMissing.R rowOp-methods.R updateObjectTo.R methods-ScalarObject.R zzz.R",
-      "Repository": "https://bioc-release.r-universe.dev",
-      "NeedsCompilation": "yes",
-      "Author": "R. Gentleman [aut], V. Carey [aut], M. Morgan [aut], S. Falcon [aut], Haleema Khan [ctb] ('esApply' and 'BiobaseDevelopment' vignette translation from Sweave to Rmarkdown / HTML), Bioconductor Package Maintainer [cre]",
-      "Maintainer": "Bioconductor Package Maintainer <maintainer@bioconductor.org>",
-      "RemoteType": "repository",
-      "RemoteUrl": "https://github.com/bioc/Biobase",
-      "RemoteRef": "RELEASE_3_23",
-      "RemoteSha": "65ae7a98395e50568bfb7a6b6367dcd967d89e1a"
-    },
-    "BiocGenerics": {
-      "Package": "BiocGenerics",
-      "Version": "0.58.1",
-      "Source": "Bioconductor",
-      "Title": "S4 generic functions used in Bioconductor",
-      "Description": "The package defines many S4 generic functions used in Bioconductor.",
-      "biocViews": "Infrastructure",
-      "URL": "https://bioconductor.org/packages/BiocGenerics",
-      "BugReports": "https://github.com/Bioconductor/BiocGenerics/issues",
-      "License": "Artistic-2.0",
-      "Encoding": "UTF-8",
-      "Authors@R": "c( person(\"The Bioconductor Dev Team\", role=\"aut\"), person(\"Hervé\", \"Pagès\", role=c(\"aut\", \"cre\"), email=\"hpages.on.github@gmail.com\", comment=c(ORCID=\"0009-0002-8272-4522\")), person(\"Laurent\", \"Gatto\", role=\"ctb\", email=\"laurent.gatto@uclouvain.be\", comment=c(ORCID=\"0000-0002-1520-2268\")), person(\"Nathaniel\", \"Hayden\", role=\"ctb\"), person(\"James\", \"Hester\", role=\"ctb\"), person(\"Wolfgang\", \"Huber\", role=\"ctb\"), person(\"Michael\", \"Lawrence\", role=\"ctb\"), person(\"Martin\", \"Morgan\", role=\"ctb\", email=\"mtmorgan.xyz@gmail.com\", comment=c(ORCID=\"0000-0002-5874-8148\")), person(\"Valerie\", \"Obenchain\", role=\"ctb\"))",
-      "Depends": [
-        "R (>= 4.0.0)",
-        "methods",
-        "utils",
-        "graphics",
-        "stats",
-        "generics"
-      ],
-      "Imports": [
-        "methods",
-        "utils",
-        "graphics",
-        "stats"
-      ],
-      "Suggests": [
-        "Biobase",
-        "S4Vectors",
-        "IRanges",
-        "S4Arrays",
-        "SparseArray",
-        "DelayedArray",
-        "HDF5Array",
-        "GenomicRanges",
-        "pwalign",
-        "Rsamtools",
-        "AnnotationDbi",
-        "affy",
-        "affyPLM",
-        "DESeq2",
-        "flowClust",
-        "MSnbase",
-        "annotate",
-        "MultiAssayExperiment",
-        "RUnit"
-      ],
-      "Collate": "S3-classes-as-S4-classes.R utils.R normarg-utils.R replaceSlots.R aperm.R append.R as.data.frame.R as.list.R as.vector.R cbind.R do.call.R duplicated.R eval.R Extremes.R format.R funprog.R get.R grep.R is.unsorted.R lapply.R mapply.R match.R mean.R nrow.R order.R paste.R rank.R rep.R row_colnames.R saveRDS.R sort.R start.R subset.R t.R table.R tapply.R unique.R unlist.R unsplit.R which.R which.min.R relist.R boxplot.R image.R density.R IQR.R mad.R residuals.R var.R weights.R xtabs.R setops.R annotation.R combine.R containsOutOfMemoryData.R dbconn.R dge.R dims.R fileName.R longForm.R normalize.R Ontology.R organism_species.R paste2.R path.R plotMA.R plotPCA.R score.R strand.R toTable.R type.R updateObject.R testPackage.R zzz.R",
-      "Repository": "https://bioc-release.r-universe.dev",
-      "NeedsCompilation": "no",
-      "Author": "The Bioconductor Dev Team [aut], Hervé Pagès [aut, cre] (ORCID: <https://orcid.org/0009-0002-8272-4522>), Laurent Gatto [ctb] (ORCID: <https://orcid.org/0000-0002-1520-2268>), Nathaniel Hayden [ctb], James Hester [ctb], Wolfgang Huber [ctb], Michael Lawrence [ctb], Martin Morgan [ctb] (ORCID: <https://orcid.org/0000-0002-5874-8148>), Valerie Obenchain [ctb]",
-      "Maintainer": "Hervé Pagès <hpages.on.github@gmail.com>",
-      "RemoteType": "repository",
-      "RemoteUrl": "https://github.com/bioc/BiocGenerics",
-      "RemoteRef": "RELEASE_3_23",
-      "RemoteSha": "995c7b312290a0776eb7c575b88d6c4d3f8d7524"
-    },
-    "BiocManager": {
-      "Package": "BiocManager",
-      "Version": "1.30.27",
-      "Source": "Repository",
-      "Title": "Access the Bioconductor Project Package Repository",
-      "Description": "A convenient tool to install and update Bioconductor packages.",
-      "Authors@R": "c( person(\"Martin\", \"Morgan\", email = \"martin.morgan@roswellpark.org\", role = \"aut\", comment = c(ORCID = \"0000-0002-5874-8148\")), person(\"Marcel\", \"Ramos\", email = \"marcel.ramos@sph.cuny.edu\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-3242-0582\")))",
-      "Imports": [
-        "utils"
-      ],
-      "Suggests": [
-        "BiocVersion",
-        "BiocStyle",
-        "remotes",
-        "rmarkdown",
-        "testthat",
-        "withr",
-        "curl",
-        "knitr"
-      ],
-      "URL": "https://bioconductor.github.io/BiocManager/",
-      "BugReports": "https://github.com/Bioconductor/BiocManager/issues",
-      "VignetteBuilder": "knitr",
-      "License": "Artistic-2.0",
-      "Encoding": "UTF-8",
-      "RoxygenNote": "7.3.2",
-      "NeedsCompilation": "no",
-      "Author": "Martin Morgan [aut] (ORCID: <https://orcid.org/0000-0002-5874-8148>), Marcel Ramos [aut, cre] (ORCID: <https://orcid.org/0000-0002-3242-0582>)",
-      "Maintainer": "Marcel Ramos <marcel.ramos@sph.cuny.edu>",
-      "Repository": "https://packagemanager.posit.co/cran/latest"
-    },
-    "BiocVersion": {
-      "Package": "BiocVersion",
-      "Version": "3.23.1",
-      "Source": "Bioconductor",
-      "Title": "Set the appropriate version of Bioconductor packages",
-      "Description": "This package provides repository information for the appropriate version of Bioconductor.",
-      "Authors@R": "c( person(\"Martin\", \"Morgan\", email = \"martin.morgan@roswellpark.org\", role = \"aut\"), person(\"Marcel\", \"Ramos\", email = \"marcel.ramos@sph.cuny.edu\", role = \"ctb\"), person(\"Bioconductor\", \"Package Maintainer\", email  = \"maintainer@bioconductor.org\", role = c(\"ctb\", \"cre\")))",
-      "biocViews": "Infrastructure",
-      "Depends": [
-        "R (>= 4.4.0)"
-      ],
-      "License": "Artistic-2.0",
-      "Encoding": "UTF-8",
-      "RoxygenNote": "6.0.1",
-      "Repository": "https://bioc.r-universe.dev",
-      "NeedsCompilation": "no",
-      "Author": "Martin Morgan [aut], Marcel Ramos [ctb], Bioconductor Package Maintainer [ctb, cre]",
-      "Maintainer": "Bioconductor Package Maintainer <maintainer@bioconductor.org>",
-      "RemoteType": "repository",
-      "RemoteUrl": "https://github.com/bioc/BiocVersion",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "252d7c8f03a39a9b83f6de7e9dbf9a5ee6584365"
-    },
-    "DBI": {
-      "Package": "DBI",
-      "Version": "1.3.0",
-      "Source": "Repository",
-      "Title": "R Database Interface",
-      "Date": "2026-02-11",
-      "Authors@R": "c( person(\"R Special Interest Group on Databases (R-SIG-DB)\", role = \"aut\"), person(\"Hadley\", \"Wickham\", role = \"aut\"), person(\"Kirill\", \"Müller\", , \"kirill@cynkra.com\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-1416-3412\")), person(\"R Consortium\", role = \"fnd\") )",
-      "Description": "A database interface definition for communication between R and relational database management systems.  All classes in this package are virtual and need to be extended by the various R/DBMS implementations.",
-      "License": "LGPL (>= 2.1)",
-      "URL": "https://dbi.r-dbi.org, https://github.com/r-dbi/DBI",
-      "BugReports": "https://github.com/r-dbi/DBI/issues",
-      "Depends": [
-        "methods",
-        "R (>= 3.0.0)"
-      ],
-      "Suggests": [
-        "arrow",
-        "blob",
-        "callr",
-        "covr",
-        "DBItest (>= 1.8.2)",
-        "dbplyr",
-        "downlit",
-        "dplyr",
-        "glue",
-        "hms",
-        "knitr",
-        "magrittr",
-        "nanoarrow (>= 0.3.0.1)",
-        "otel",
-        "otelsdk",
-        "RMariaDB",
-        "rmarkdown",
-        "rprojroot",
-        "RSQLite (>= 1.1-2)",
-        "testthat (>= 3.0.0)",
-        "vctrs",
-        "xml2"
-      ],
-      "VignetteBuilder": "knitr",
-      "Config/autostyle/scope": "line_breaks",
-      "Config/autostyle/strict": "false",
-      "Config/Needs/check": "r-dbi/DBItest",
-      "Config/Needs/website": "r-dbi/DBItest, r-dbi/dbitemplate, adbi, AzureKusto, bigrquery, DatabaseConnector, dittodb, duckdb, implyr, lazysf, odbc, pool, RAthena, IMSMWU/RClickhouse, RH2, RJDBC, RMariaDB, RMySQL, RPostgres, RPostgreSQL, RPresto, RSQLite, sergeant, sparklyr, withr",
-      "Config/testthat/edition": "3",
-      "Encoding": "UTF-8",
-      "RoxygenNote": "7.3.3.9000",
-      "NeedsCompilation": "no",
-      "Author": "R Special Interest Group on Databases (R-SIG-DB) [aut], Hadley Wickham [aut], Kirill Müller [aut, cre] (ORCID: <https://orcid.org/0000-0002-1416-3412>), R Consortium [fnd]",
-      "Maintainer": "Kirill Müller <kirill@cynkra.com>",
-      "Repository": "CRAN"
-    },
     "DT": {
       "Package": "DT",
       "Version": "0.34.0",
@@ -476,31 +292,6 @@
       "Maintainer": "Tyler Hunt <thunt@snapfinance.com>",
       "Repository": "CRAN"
     },
-    "ProtGenerics": {
-      "Package": "ProtGenerics",
-      "Version": "1.44.0",
-      "Source": "Bioconductor",
-      "Title": "Generic infrastructure for Bioconductor mass spectrometry packages",
-      "Description": "S4 generic functions and classes needed by Bioconductor proteomics packages.",
-      "Author": "Laurent Gatto <laurent.gatto@uclouvain.be>, Johannes Rainer <johannes.rainer@eurac.edu>",
-      "Maintainer": "Laurent Gatto <laurent.gatto@uclouvain.be>",
-      "biocViews": "Infrastructure, Proteomics, MassSpectrometry",
-      "URL": "https://github.com/RforMassSpectrometry/ProtGenerics",
-      "Depends": [
-        "methods"
-      ],
-      "Suggests": [
-        "testthat"
-      ],
-      "License": "Artistic-2.0",
-      "NeedsCompilation": "no",
-      "RoxygenNote": "7.3.2",
-      "Repository": "https://bioc-release.r-universe.dev",
-      "RemoteType": "repository",
-      "RemoteUrl": "https://github.com/bioc/ProtGenerics",
-      "RemoteRef": "RELEASE_3_23",
-      "RemoteSha": "abea58c88314fc16ed5b978af6d003573a41381d"
-    },
     "R6": {
       "Package": "R6",
       "Version": "2.6.1",
@@ -687,45 +478,6 @@
       "Author": "Georgi N. Boshnakov [aut, cre] (ORCID: <https://orcid.org/0000-0003-2839-346X>), Duncan Murdoch [ctb]",
       "Maintainer": "Georgi N. Boshnakov <georgi.boshnakov@manchester.ac.uk>",
       "Repository": "CRAN"
-    },
-    "Rhdf5lib": {
-      "Package": "Rhdf5lib",
-      "Version": "2.0.0",
-      "Source": "Bioconductor",
-      "Type": "Package",
-      "Title": "hdf5 library as an R package",
-      "Authors@R": "c( person( \"Mike\", \"Smith\", role = \"ctb\", comment = c(ORCID = \"0000-0002-7800-3848\") ), person( \"Hugo\", \"Gruson\", role = \"cre\", email = \"hugo.gruson@embl.de\", comment = c(ORCID = \"0000-0002-4094-1476\")) , person( given = \"The HDF Group\", role = \"cph\" ) )",
-      "Description": "Provides C and C++ hdf5 libraries.",
-      "License": "Artistic-2.0",
-      "Copyright": "vendor/hdf5/COPYING",
-      "LazyLoad": "true",
-      "VignetteBuilder": "knitr",
-      "Depends": [
-        "R (>= 4.2.0)"
-      ],
-      "Suggests": [
-        "BiocStyle",
-        "knitr",
-        "rmarkdown",
-        "tinytest",
-        "mockery"
-      ],
-      "URL": "https://github.com/Huber-group-EMBL/Rhdf5lib",
-      "BugReports": "https://github.com/Huber-group-EMBL/Rhdf5lib/issues",
-      "LinkingTo": [
-        "biocmake"
-      ],
-      "NeedsCompilation": "yes",
-      "Encoding": "UTF-8",
-      "biocViews": "Infrastructure",
-      "RoxygenNote": "7.3.3",
-      "Repository": "https://bioc-release.r-universe.dev",
-      "Author": "Mike Smith [ctb] (ORCID: <https://orcid.org/0000-0002-7800-3848>), Hugo Gruson [cre] (ORCID: <https://orcid.org/0000-0002-4094-1476>), The HDF Group [cph]",
-      "Maintainer": "Hugo Gruson <hugo.gruson@embl.de>",
-      "RemoteType": "repository",
-      "RemoteUrl": "https://github.com/bioc/Rhdf5lib",
-      "RemoteRef": "RELEASE_3_23",
-      "RemoteSha": "21f3087035b375f46b89b27f67d11493aaef2171"
     },
     "S7": {
       "Package": "S7",
@@ -926,58 +678,6 @@
       "URL": "https://www.rforge.net/base64enc",
       "BugReports": "https://github.com/s-u/base64enc/issues",
       "NeedsCompilation": "yes",
-      "Repository": "CRAN"
-    },
-    "biocmake": {
-      "Package": "biocmake",
-      "Version": "1.4.0",
-      "Source": "Bioconductor",
-      "Date": "2025-11-22",
-      "Title": "CMake for Bioconductor",
-      "Description": "Manages the installation of CMake for building Bioconductor packages. This avoids the need for end-users to manually install CMake on their system. No action is performed if a suitable version of CMake is already available.",
-      "Authors@R": "person(\"Aaron\", \"Lun\", role=c(\"cre\", \"aut\"), email=\"infinite.monkeys.with.keyboards@gmail.com\")",
-      "License": "MIT + file LICENSE",
-      "Encoding": "UTF-8",
-      "VignetteBuilder": "knitr",
-      "Imports": [
-        "utils",
-        "tools",
-        "dir.expiry"
-      ],
-      "Suggests": [
-        "knitr",
-        "rmarkdown",
-        "BiocStyle",
-        "testthat"
-      ],
-      "biocViews": "Infrastructure",
-      "URL": "https://github.com/LTLA/biocmake",
-      "BugReports": "https://github.com/LTLA/biocmake/issues",
-      "RoxygenNote": "7.3.2",
-      "Repository": "https://bioc-release.r-universe.dev",
-      "NeedsCompilation": "no",
-      "Author": "Aaron Lun [cre, aut]",
-      "Maintainer": "Aaron Lun <infinite.monkeys.with.keyboards@gmail.com>",
-      "RemoteType": "repository",
-      "RemoteUrl": "https://github.com/bioc/biocmake",
-      "RemoteRef": "RELEASE_3_23",
-      "RemoteSha": "6b43087b270a38c868735325540d49c45e9d7f85"
-    },
-    "bitops": {
-      "Package": "bitops",
-      "Version": "1.1-0",
-      "Source": "Repository",
-      "VersionNote": "Last CRAN: 1.0-9 on 2024-10-03",
-      "Date": "2026-07-30",
-      "Authors@R": "c( person(\"Steve\", \"Dutky\", role = \"aut\", email = \"sdutky@terpalum.umd.edu\", comment = \"S original; then (after MM's port) revised and modified\"), person(\"Martin\", \"Maechler\", role = c(\"cre\", \"aut\"), email = \"maechler@stat.math.ethz.ch\", comment = c(\"Initial R port; tweaks\", ORCID = \"0000-0002-8685-9910\")))",
-      "Title": "Bitwise Operations",
-      "Description": "Functions for bitwise operations on integer vectors.",
-      "License": "GPL (>= 2)",
-      "URL": "https://github.com/mmaechler/R-bitops",
-      "BugReports": "https://github.com/mmaechler/R-bitops/issues",
-      "NeedsCompilation": "yes",
-      "Author": "Steve Dutky [aut] (S original; then (after MM's port) revised and modified), Martin Maechler [cre, aut] (Initial R port; tweaks, ORCID: <https://orcid.org/0000-0002-8685-9910>)",
-      "Maintainer": "Martin Maechler <maechler@stat.math.ethz.ch>",
       "Repository": "CRAN"
     },
     "boot": {
@@ -1237,31 +937,6 @@
       "Author": "Carson Sievert [aut, cre] (ORCID: <https://orcid.org/0000-0002-4958-2844>), Joe Cheng [aut], Garrick Aden-Buie [aut] (ORCID: <https://orcid.org/0000-0002-7111-0077>), Posit Software, PBC [cph, fnd], Bootstrap contributors [ctb] (Bootstrap library), Twitter, Inc [cph] (Bootstrap library), Javi Aguilar [ctb, cph] (Bootstrap colorpicker library), Thomas Park [ctb, cph] (Bootswatch library), PayPal [ctb, cph] (Bootstrap accessibility plugin)",
       "Maintainer": "Carson Sievert <carson@posit.co>",
       "Repository": "CRAN"
-    },
-    "caTools": {
-      "Package": "caTools",
-      "Version": "1.18.4",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "Tools: Moving Window Statistics, GIF, Base64, ROC AUC, etc",
-      "Date": "2026-07-20",
-      "Authors@R": "c(person(given = \"Jarek\", family = \"Tuszynski\", role = \"aut\", email = \"jaroslaw.w.tuszynski@saic.com\"), person(given = \"Michael\", family = \"Dietze\", role = \"cre\", email = \"michael.dietze@geo.rwth-aachen.de\"))",
-      "Maintainer": "Michael Dietze <michael.dietze@geo.rwth-aachen.de>",
-      "Depends": [
-        "R (>= 3.6.0)"
-      ],
-      "Imports": [
-        "bitops"
-      ],
-      "Suggests": [
-        "MASS",
-        "rpart"
-      ],
-      "Description": "Contains several basic utility functions including: moving (rolling, running) window statistic functions, read/write for GIF and ENVI binary files, fast calculation of AUC, LogitBoost classifier, base64 encoder/decoder, round-off-error-free sum and cumsum, etc.",
-      "License": "GPL-3",
-      "NeedsCompilation": "yes",
-      "Repository": "CRAN",
-      "Author": "Jarek Tuszynski [aut], Michael Dietze [cre]"
     },
     "cachem": {
       "Package": "cachem",
@@ -2205,38 +1880,6 @@
       "Maintainer": "Dirk Eddelbuettel <edd@debian.org>",
       "Repository": "CRAN"
     },
-    "dir.expiry": {
-      "Package": "dir.expiry",
-      "Version": "1.20.0",
-      "Source": "Bioconductor",
-      "Date": "2024-10-17",
-      "Title": "Managing Expiration for Cache Directories",
-      "Description": "Implements an expiration system for access to versioned directories. Directories that have not been accessed by a registered function within a certain time frame are deleted. This aims to reduce disk usage by eliminating obsolete caches generated by old versions of packages.",
-      "Authors@R": "person(\"Aaron\", \"Lun\", role=c(\"aut\", \"cre\"), email=\"infinite.monkeys.with.keyboards@gmail.com\")",
-      "License": "GPL-3",
-      "Imports": [
-        "utils",
-        "filelock"
-      ],
-      "Suggests": [
-        "rmarkdown",
-        "knitr",
-        "testthat",
-        "BiocStyle"
-      ],
-      "biocViews": "Software, Infrastructure",
-      "VignetteBuilder": "knitr",
-      "RoxygenNote": "7.3.2",
-      "Encoding": "UTF-8",
-      "Repository": "https://bioc-release.r-universe.dev",
-      "NeedsCompilation": "no",
-      "Author": "Aaron Lun [aut, cre]",
-      "Maintainer": "Aaron Lun <infinite.monkeys.with.keyboards@gmail.com>",
-      "RemoteType": "repository",
-      "RemoteUrl": "https://github.com/bioc/dir.expiry",
-      "RemoteRef": "RELEASE_3_23",
-      "RemoteSha": "b9df09a440a4bf3633ac83992e6b69098f9180e7"
-    },
     "doBy": {
       "Package": "doBy",
       "Version": "4.7.2",
@@ -2390,55 +2033,6 @@
       "NeedsCompilation": "yes",
       "Author": "Hadley Wickham [aut, cre] (ORCID: <https://orcid.org/0000-0003-4757-117X>), Romain François [aut] (ORCID: <https://orcid.org/0000-0002-2444-4226>), Lionel Henry [aut], Kirill Müller [aut] (ORCID: <https://orcid.org/0000-0002-1416-3412>), Davis Vaughan [aut] (ORCID: <https://orcid.org/0000-0003-4777-038X>), Posit Software, PBC [cph, fnd]",
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
-      "Repository": "CRAN"
-    },
-    "duckdb": {
-      "Package": "duckdb",
-      "Version": "1.5.5",
-      "Source": "Repository",
-      "Title": "DBI Package for the DuckDB Database Management System",
-      "Authors@R": "c( person(\"Hannes\", \"Mühleisen\", , \"hannes@cwi.nl\", role = \"aut\", comment = c(ORCID = \"0000-0001-8552-0029\")), person(\"Mark\", \"Raasveldt\", , \"mark.raasveldt@cwi.nl\", role = \"aut\", comment = c(ORCID = \"0000-0001-5005-6844\")), person(\"Kirill\", \"Müller\", , \"kirill@cynkra.com\", role = \"cre\", comment = c(ORCID = \"0000-0002-1416-3412\")), person(\"Stichting DuckDB Foundation\", role = \"cph\"), person(\"Apache Software Foundation\", role = \"cph\"), person(\"PostgreSQL Global Development Group\", role = \"cph\"), person(\"The Regents of the University of California\", role = \"cph\"), person(\"Cameron Desrochers\", role = \"cph\"), person(\"Victor Zverovich\", role = \"cph\"), person(\"RAD Game Tools\", role = \"cph\"), person(\"Valve Software\", role = \"cph\"), person(\"Rich Geldreich\", role = \"cph\"), person(\"Tenacious Software LLC\", role = \"cph\"), person(\"The RE2 Authors\", role = \"cph\"), person(\"Google Inc.\", role = \"cph\"), person(\"Facebook Inc.\", role = \"cph\"), person(\"Steven G. Johnson\", role = \"cph\"), person(\"Jiahao Chen\", role = \"cph\"), person(\"Tony Kelman\", role = \"cph\"), person(\"Jonas Fonseca\", role = \"cph\"), person(\"Lukas Fittl\", role = \"cph\"), person(\"Salvatore Sanfilippo\", role = \"cph\"), person(\"Art.sy, Inc.\", role = \"cph\"), person(\"Oran Agra\", role = \"cph\"), person(\"Redis Labs, Inc.\", role = \"cph\"), person(\"Melissa O'Neill\", role = \"cph\"), person(\"PCG Project contributors\", role = \"cph\") )",
-      "Description": "The DuckDB project is an embedded analytical data management system with support for the Structured Query Language (SQL). This package includes all of DuckDB and an R Database Interface (DBI) connector.",
-      "License": "MIT + file LICENSE",
-      "URL": "https://r.duckdb.org/, https://github.com/duckdb/duckdb-r",
-      "BugReports": "https://github.com/duckdb/duckdb-r/issues",
-      "Depends": [
-        "DBI",
-        "R (>= 4.2.0)"
-      ],
-      "Imports": [
-        "methods",
-        "utils"
-      ],
-      "Suggests": [
-        "adbcdrivermanager",
-        "arrow (>= 13.0.0)",
-        "bit64",
-        "callr",
-        "clock",
-        "DBItest",
-        "dbplyr",
-        "dplyr",
-        "nanoarrow",
-        "rlang",
-        "sf",
-        "testthat (>= 3.0.0)",
-        "tibble",
-        "vctrs",
-        "wk",
-        "withr"
-      ],
-      "Biarch": "true",
-      "Config/build/compilation-database": "false",
-      "Config/build/never-clean": "true",
-      "Config/comment/compilation-database": "Generate manually with pkgload:::generate_db() for faster pkgload::load_all()",
-      "Config/testthat/edition": "3",
-      "Encoding": "UTF-8",
-      "SystemRequirements": "xz (for building from source)",
-      "Config/roxygen2/version": "8.0.0.9000",
-      "NeedsCompilation": "yes",
-      "Author": "Hannes Mühleisen [aut] (ORCID: <https://orcid.org/0000-0001-8552-0029>), Mark Raasveldt [aut] (ORCID: <https://orcid.org/0000-0001-5005-6844>), Kirill Müller [cre] (ORCID: <https://orcid.org/0000-0002-1416-3412>), Stichting DuckDB Foundation [cph], Apache Software Foundation [cph], PostgreSQL Global Development Group [cph], The Regents of the University of California [cph], Cameron Desrochers [cph], Victor Zverovich [cph], RAD Game Tools [cph], Valve Software [cph], Rich Geldreich [cph], Tenacious Software LLC [cph], The RE2 Authors [cph], Google Inc. [cph], Facebook Inc. [cph], Steven G. Johnson [cph], Jiahao Chen [cph], Tony Kelman [cph], Jonas Fonseca [cph], Lukas Fittl [cph], Salvatore Sanfilippo [cph], Art.sy, Inc. [cph], Oran Agra [cph], Redis Labs, Inc. [cph], Melissa O'Neill [cph], PCG Project contributors [cph]",
-      "Maintainer": "Kirill Müller <kirill@cynkra.com>",
       "Repository": "CRAN"
     },
     "e1071": {
@@ -2611,33 +2205,6 @@
       "NeedsCompilation": "yes",
       "Author": "Winston Chang [aut, cre], Posit Software, PBC [cph, fnd], Tessil [cph] (hopscotch_map library)",
       "Maintainer": "Winston Chang <winston@posit.co>",
-      "Repository": "CRAN"
-    },
-    "filelock": {
-      "Package": "filelock",
-      "Version": "1.0.3",
-      "Source": "Repository",
-      "Title": "Portable File Locking",
-      "Authors@R": "c( person(\"Gábor\", \"Csárdi\", , \"csardi.gabor@gmail.com\", role = c(\"aut\", \"cre\")), person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\")) )",
-      "Description": "Place an exclusive or shared lock on a file. It uses 'LockFile' on Windows and 'fcntl' locks on Unix-like systems.",
-      "License": "MIT + file LICENSE",
-      "URL": "https://r-lib.github.io/filelock/, https://github.com/r-lib/filelock",
-      "BugReports": "https://github.com/r-lib/filelock/issues",
-      "Depends": [
-        "R (>= 3.4)"
-      ],
-      "Suggests": [
-        "callr (>= 2.0.0)",
-        "covr",
-        "testthat (>= 3.0.0)"
-      ],
-      "Config/Needs/website": "tidyverse/tidytemplate",
-      "Config/testthat/edition": "3",
-      "Encoding": "UTF-8",
-      "RoxygenNote": "7.2.3",
-      "NeedsCompilation": "yes",
-      "Author": "Gábor Csárdi [aut, cre], Posit Software, PBC [cph, fnd]",
-      "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
       "Repository": "CRAN"
     },
     "fontawesome": {
@@ -4594,74 +4161,6 @@
       "NeedsCompilation": "no",
       "Author": "Hadley Wickham [aut, cre], Posit Software, PBC [cph, fnd]",
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
-      "Repository": "CRAN"
-    },
-    "mzR": {
-      "Package": "mzR",
-      "Version": "2.46.0",
-      "Source": "Bioconductor",
-      "Type": "Package",
-      "Title": "parser for netCDF, mzXML and mzML and mzIdentML files (mass spectrometry data)",
-      "Author": "Bernd Fischer, Steffen Neumann, Laurent Gatto, Qiang Kou, Johannes Rainer",
-      "Authors@R": "c( person(\"Steffen\", \"Neumann\", email=\"sneumann@ipb-halle.de\", role=c(\"aut\",\"cre\")), person(\"Laurent\", \"Gatto\", email=\"laurent.gatto@uclouvain.be\", role=c(\"aut\")), person(\"Qiakng\", \"Kou\", email=\"qkou@umail.iu.edu\", role=c(\"aut\")), person(\"David\",\"Rauh\",email=\"drauh@ipb-halle.de\", role=c(\"ctb\")), person(\"Sascha\",\"Manier\",email=\"sascha.manier@uni-saarland.de\", role=c(\"ctb\")), person(given = \"Adriano\", family = \"Rutz\", email = \"adafede@gmail.com\", role = c(\"ctb\"), comment = c(ORCID = \"0000-0003-0443-9902\")), person(given = \"Johannes\", family = \"Rainer\", email = \"Johannes.Rainer@eurac.edu\", role = \"aut\", comment = c(ORCID = \"0000-0002-6977-7147\")) )",
-      "Description": "mzR provides a unified API to the common file formats and parsers available for mass spectrometry data. It comes with a subset of the proteowizard library for mzXML, mzML and mzIdentML. The netCDF reading code has previously been used in XCMS.",
-      "License": "Artistic-2.0",
-      "LazyLoad": "yes",
-      "Depends": [
-        "R (>= 4.0.0)",
-        "Rcpp (>= 0.10.1)",
-        "methods",
-        "utils"
-      ],
-      "Imports": [
-        "Biobase",
-        "BiocGenerics (>= 0.13.6)",
-        "ProtGenerics (>= 1.17.3)",
-        "ncdf4"
-      ],
-      "Suggests": [
-        "MsDataHub",
-        "RUnit",
-        "mzID",
-        "BiocStyle (>= 2.5.19)",
-        "knitr",
-        "XML",
-        "rmarkdown"
-      ],
-      "VignetteBuilder": "knitr",
-      "LinkingTo": [
-        "Rcpp",
-        "Rhdf5lib (>= 1.1.4)"
-      ],
-      "RcppModules": "Pwiz, Ident",
-      "SystemRequirements": "C++11, GNU make",
-      "URL": "https://github.com/sneumann/mzR/",
-      "BugReports": "https://github.com/sneumann/mzR/issues/",
-      "biocViews": "ImmunoOncology, Infrastructure, DataImport, Proteomics, Metabolomics, MassSpectrometry",
-      "RoxygenNote": "7.3.3",
-      "Config/pak/sysreqs": "make libnetcdf-dev zlib1g-dev",
-      "Repository": "https://bioc-release.r-universe.dev",
-      "NeedsCompilation": "yes",
-      "Maintainer": "Steffen Neumann <sneumann@ipb-halle.de>",
-      "RemoteType": "repository",
-      "RemoteUrl": "https://github.com/bioc/mzR",
-      "RemoteRef": "RELEASE_3_23",
-      "RemoteSha": "7b9079d81400864455a68fb31842c73260451034"
-    },
-    "ncdf4": {
-      "Package": "ncdf4",
-      "Version": "1.24",
-      "Source": "Repository",
-      "Date": "2025-03-25",
-      "Title": "Interface to Unidata netCDF (Version 4 or Earlier) Format Data Files",
-      "Authors@R": "person(given=\"David\", family=\"Pierce\", email=\"dpierce@ucsd.edu\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-2453-9030\"))",
-      "Description": "Provides a high-level R interface to data files written using Unidata's netCDF library (version 4 or earlier), which are binary data files that are portable across platforms and include metadata information in addition to the data sets.  Using this package, netCDF files (either version 4 or \"classic\" version 3) can be opened and data sets read in easily.  It is also easy to create new netCDF dimensions, variables, and files, in either version 3 or 4 format, and manipulate existing netCDF files.  This package replaces the former ncdf package, which only worked with netcdf version 3 files.  For various reasons the names of the functions have had to be changed from the names in the ncdf package.  The old ncdf package is still available at the URL given below, if you need to have backward compatibility.  It should be possible to have both the ncdf and ncdf4 packages installed simultaneously without a problem.  However, the ncdf package does not provide an interface for netcdf version 4 files.",
-      "SystemRequirements": "netcdf library version 4.1 or later",
-      "License": "GPL (>= 3)",
-      "URL": "https://cirrus.ucsd.edu/~pierce/ncdf/",
-      "NeedsCompilation": "yes",
-      "Author": "David Pierce [aut, cre] (<https://orcid.org/0000-0002-2453-9030>)",
-      "Maintainer": "David Pierce <dpierce@ucsd.edu>",
       "Repository": "CRAN"
     },
     "nlme": {
