@@ -465,7 +465,7 @@ run_or_load_step(
 
     # Welch t-test + PCA on significant features
     welch <- mzlog_analysis_welch(phenoA_data, phenoB_data, cores = 2)
-    cat("  Significant features (Welch):", sum(volcano$welch$p_05), "\n")
+    cat("  Significant features (Welch):", sum(welch$p_05), "\n")
     mzlog_analysis_pca(mzLog[welch$p_05, ], metadata, plot_title = "PCA_Welch")
     
     # Fold change
@@ -480,57 +480,57 @@ run_or_load_step(
   }
 )
 
-# # =============================================================================
-# # STEP 9: Compound Identification
-# # =============================================================================
-# run_or_load_step(
-#   step_id = "step9",
-#   stage_name = "Step 9: Compound Identification",
-#   enabled = RUN_STEP_9,
-#   checkpoint_vars = c(
-#     "metadata", "mzLong", "mzLog",
-#     "welch", "fold", "volcano", "sig_mz", "hmdb_hits", "lipid_hits"
-#   ),
-#   expr = {
-#     cat("\n=== Step 9: Compound Identification ===\n")
-#     
-#     sig_mz1 <- volcano$welch[volcano$welch$p_05, "mz", drop = FALSE]
-#     sig_mz1$mz <- as.numeric(sig_mz1$mz)
-#     sig_mz <- sig_mz1[is.finite(sig_mz1$mz), , drop = FALSE]
-#     
-#     if (length(sig_mz) > 0) {
-#       cat("  Identifying", length(sig_mz), "features...\n")
-#       
-#       hmdb_hits  <- identify_hmdb(sig_mz[, c("mz")], adducts = c("M+H", "M+Na"))
-#       lipid_hits <- identify_lipids(sig_mz[, c("mz")], adducts = c("M+H", "M+Na"))
-#       
-#       cat("  HMDB hits:",  nrow(hmdb_hits),  "\n")
-#       cat("  Lipid hits:", nrow(lipid_hits), "\n")
-#       
-#       write.csv(hmdb_hits,  file.path(out_dir, "hmdb_hits.csv"),  row.names = FALSE)
-#       write.csv(lipid_hits, file.path(out_dir, "lipid_hits.csv"), row.names = FALSE)
-#       
-#       cat("  Results saved to", out_dir, "\n")
-#     } else {
-#       hmdb_hits  <- data.frame()
-#       lipid_hits <- data.frame()
-#       cat("  No significant features found for identification.\n")
-#     }
-#   }
-# )
-# 
-# cat("\n=== Pipeline complete! ===\n")
-# 
-# PIPELINE_END <- Sys.time()
-# TOTAL_RUNTIME <- as.numeric(difftime(PIPELINE_END, PIPELINE_START, units = "secs"))
-# 
-# cat("\n============================================================\n")
-# cat("Script :", SCRIPT_NAME, "\n")
-# cat("End    :", format(PIPELINE_END, "%Y-%m-%d %H:%M:%S"), "\n")
-# cat(sprintf("Total runtime : %.3f sec\n", TOTAL_RUNTIME))
-# cat("============================================================\n")
-# 
-# # =============================================================================
-# # Export runtime table + visualization
-# # =============================================================================
-# source("scripts/runtime_report.R")
+# =============================================================================
+# STEP 9: Compound Identification
+# =============================================================================
+run_or_load_step(
+  step_id = "step9",
+  stage_name = "Step 9: Compound Identification",
+  enabled = RUN_STEP_9,
+  checkpoint_vars = c(
+    "metadata", "mzLong", "mzLog",
+    "welch", "fold", "volcano", "sig_mz", "hmdb_hits", "lipid_hits"
+  ),
+  expr = {
+    cat("\n=== Step 9: Compound Identification ===\n")
+
+    sig_mz <- welch[which(welch$p_05), "mz", drop = FALSE]
+    sig_mz$mz <- as.numeric(sig_mz$mz)
+    sig_mz <- sig_mz[is.finite(sig_mz$mz), , drop = FALSE]
+
+    if (nrow(sig_mz) > 0) {
+      cat("  Identifying", nrow(sig_mz), "features...\n")
+
+      hmdb_hits  <- identify_hmdb(sig_mz$mz, adducts = c("M+H", "M+Na"))
+      lipid_hits <- identify_lipids(sig_mz$mz, adducts = c("M+H", "M+Na"))
+
+      cat("  HMDB hits:",  nrow(hmdb_hits),  "\n")
+      cat("  Lipid hits:", nrow(lipid_hits), "\n")
+
+      write.csv(hmdb_hits,  file.path(out_dir, "hmdb_hits.csv"),  row.names = FALSE)
+      write.csv(lipid_hits, file.path(out_dir, "lipid_hits.csv"), row.names = FALSE)
+
+      cat("  Results saved to", out_dir, "\n")
+    } else {
+      hmdb_hits  <- data.frame()
+      lipid_hits <- data.frame()
+      cat("  No significant features found for identification.\n")
+    }
+  }
+)
+
+cat("\n=== Pipeline complete! ===\n")
+
+PIPELINE_END <- Sys.time()
+TOTAL_RUNTIME <- as.numeric(difftime(PIPELINE_END, PIPELINE_START, units = "secs"))
+
+cat("\n============================================================\n")
+cat("Script :", SCRIPT_NAME, "\n")
+cat("End    :", format(PIPELINE_END, "%Y-%m-%d %H:%M:%S"), "\n")
+cat(sprintf("Total runtime : %.3f sec\n", TOTAL_RUNTIME))
+cat("============================================================\n")
+
+# =============================================================================
+# Export runtime table + visualization
+# =============================================================================
+source("scripts/runtime_report.R")
