@@ -273,8 +273,6 @@ run_or_load_step(
       ) |>
       as.data.frame()
 
-    unique_samples <- sort(unique(raw$sample_name))
-
     # Drop raw, we only need mz_obj from here on
     rm(raw)
     gc(full = TRUE)
@@ -283,8 +281,6 @@ run_or_load_step(
       "  MZ-OBJ created:", nrow(mz_obj), "features x",
       ncol(mz_obj) - 1, "samples (rounded to", MZ_ROUND_DIGITS, "decimals)\n"
     )
-
-    meta_names <- sub(paste0("^", POLARITY, "_"), "", unique_samples)
 
     cat("  Metadata:", nrow(metadata), "samples\n")
     cat("  Types:", paste(unique(metadata$sample_type), collapse = ", "), "\n")
