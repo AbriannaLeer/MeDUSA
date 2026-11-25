@@ -299,7 +299,7 @@ run_or_load_step(
   step_id = "step2",
   stage_name = "Step 2: Quality Check",
   enabled = RUN_STEP_2,
-  checkpoint_vars = c("mz_obj", "metadata", "qc_metrics"),
+  checkpoint_vars = c("mz_obj", "metadata", "qc"),
   expr = {
     cat("\n=== Step 2: Quality Check ===\n")
     
@@ -317,7 +317,7 @@ run_or_load_step(
   step_id = "step3",
   stage_name = "Step 3: Blank Subtraction",
   enabled = RUN_STEP_3,
-  checkpoint_vars = c("mz_obj", "metadata", "qc_metrics"),
+  checkpoint_vars = c("mz_obj", "metadata", "qc"),
   expr = {
     cat("\n=== Step 3: Blank Subtraction ===\n")
 
@@ -343,7 +343,7 @@ run_or_load_step(
 #   step_id = "step4",
 #   stage_name = "Step 4: Mass Defect Filter",
 #   enabled = RUN_STEP_4,
-#   checkpoint_vars = c("mz_obj", "metadata", "qc_metrics"),
+#   checkpoint_vars = c("mz_obj", "metadata", "qc"),
 #   expr = {
 #     cat("\n=== Step 4: Mass Defect Filter ===\n")
 #     mz_obj <- mz_mass_defect(mz_obj)
@@ -358,7 +358,7 @@ run_or_load_step(
 #   step_id = "step5",
 #   stage_name = "Step 5: Isotope Tagging",
 #   enabled = RUN_STEP_5,
-#   checkpoint_vars = c("mz_obj", "metadata", "qc_metrics", "isotopes"),
+#   checkpoint_vars = c("mz_obj", "metadata", "qc", "isotopes"),
 #   expr = {
 #     cat("\n=== Step 5: Isotope Tagging ===\n")
 #     isotopes <- mz_tag_isotope_hunter(mz_obj)
@@ -373,7 +373,7 @@ run_or_load_step(
 #   step_id = "step6",
 #   stage_name = "Step 6: Filtering (blacklist, missingness, intensity)",
 #   enabled = RUN_STEP_6,
-#   checkpoint_vars = c("mz_obj", "metadata", "qc_metrics", "isotopes"),
+#   checkpoint_vars = c("mz_obj", "metadata", "qc", "isotopes"),
 #   expr = {
 #     cat("\n=== Step 6: Filtering (blacklist, missingness, intensity) ===\n")
 #     cat("  Using min_intensity =", STEP6_MIN_INTENSITY,
@@ -401,7 +401,7 @@ run_or_load_step(
 # 
 #     # Free large upstream objects we no longer need in this step
 #     if (exists("isotopes",   envir = .GlobalEnv)) rm("isotopes",   envir = .GlobalEnv)
-#     if (exists("qc_metrics", envir = .GlobalEnv)) rm("qc_metrics", envir = .GlobalEnv)
+#     if (exists("qc", envir = .GlobalEnv)) rm("qc", envir = .GlobalEnv)
 #     gc(full = TRUE)
 #     mem_report("before mz_post_magic")
 # 
