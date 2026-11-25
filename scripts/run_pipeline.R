@@ -332,36 +332,36 @@ run_or_load_step(
   }
 )
 
-# # =============================================================================
-# # STEP 4: Mass Defect Filter
-# # =============================================================================
-# run_or_load_step(
-#   step_id = "step4",
-#   stage_name = "Step 4: Mass Defect Filter",
-#   enabled = RUN_STEP_4,
-#   checkpoint_vars = c("mz_obj", "metadata", "qc"),
-#   expr = {
-#     cat("\n=== Step 4: Mass Defect Filter ===\n")
-#     mz_obj <- mz_mass_defect(mz_obj)
-#     cat("  After mass defect:", nrow(mz_obj), "features remaining\n")
-#   }
-# )
-# 
-# # =============================================================================
-# # STEP 5: Isotope Tagging
-# # =============================================================================
-# run_or_load_step(
-#   step_id = "step5",
-#   stage_name = "Step 5: Isotope Tagging",
-#   enabled = RUN_STEP_5,
-#   checkpoint_vars = c("mz_obj", "metadata", "qc", "isotopes"),
-#   expr = {
-#     cat("\n=== Step 5: Isotope Tagging ===\n")
-#     isotopes <- mz_tag_isotope_hunter(mz_obj)
-#     cat("  Isotope groups found:", length(isotopes), "\n")
-#   }
-# )
-# 
+# =============================================================================
+# STEP 4: Mass Defect Filter
+# =============================================================================
+run_or_load_step(
+  step_id = "step4",
+  stage_name = "Step 4: Mass Defect Filter",
+  enabled = RUN_STEP_4,
+  checkpoint_vars = c("mz_obj", "metadata", "qc"),
+  expr = {
+    cat("\n=== Step 4: Mass Defect Filter ===\n")
+    mz_obj <- mz_mass_defect(mz_obj)
+    cat("  After mass defect:", nrow(mz_obj), "features remaining\n")
+  }
+)
+
+# =============================================================================
+# STEP 5: Isotope Tagging
+# =============================================================================
+run_or_load_step(
+  step_id = "step5",
+  stage_name = "Step 5: Isotope Tagging",
+  enabled = RUN_STEP_5,
+  checkpoint_vars = c("mz_obj", "metadata", "qc", "isotopes"),
+  expr = {
+    cat("\n=== Step 5: Isotope Tagging ===\n")
+    isotopes <- mz_tag_isotope_hunter(mz_obj)
+    cat("  Isotope groups found:", length(isotopes), "\n")
+  }
+)
+
 # # =============================================================================
 # # STEP 6: Noise Filtering — STRICTER NOW, runs before heavy step 7
 # # =============================================================================
