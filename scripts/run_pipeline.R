@@ -302,11 +302,11 @@ run_or_load_step(
   step_id = "step1",
   stage_name = "Step 1: Lipid Check",
   enabled = RUN_STEP_1,
-  checkpoint_vars = c("mz_obj", "metadata", "qc"),
+  checkpoint_vars = c("mz_obj", "metadata"),
   expr = {
     cat("\n=== Step 1: Lipid Check ===\n")
     mz_obj <- lipid_sanity_check(mz_obj)
-    cat("  After mass defect:", nrow(mz_obj), "features remaining\n")
+    cat("  After lipid check:", nrow(mz_obj), "features remaining\n")
   }
 )
 
@@ -317,9 +317,9 @@ run_or_load_step(
   step_id = "step2",
   stage_name = "Step 2: Quality Check",
   enabled = RUN_STEP_2,
-  checkpoint_vars = c("mz_obj", "metadata"),
+  checkpoint_vars = c("mz_obj", "metadata", "qc"),
   expr = {
-    cat("\n=== Step 1: Lipid Check ===\n")
+    cat("\n=== Step 2: Quality Check ===\n")
     
     mz_quality_meta_check(mz_obj, metadata)
     qc <- mz_quality_metrics(mz_obj, cores = 2)

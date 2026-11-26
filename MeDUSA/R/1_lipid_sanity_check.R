@@ -15,11 +15,6 @@
 #' error (+0.94 and -0.74 ppm). That confirms the molecular formulas, but without
 #' MS/MS the acyl-chain composition and sn-positions are putative.
 #'
-#' MZ-OBJ Lipid Check
-#'
-#' Mass Defect Calculation.\cr
-#'     Zeros any intensities that are lower than MD-Calc.
-#'
 #' @param input_mz_obj \cr
 #'   DataFrame : Input MZ-Obj
 #' @param plot \cr
@@ -48,13 +43,7 @@ lipid_sanity_check <- function(input_mz_obj) {
 #' @description
 #' The results during the lipid check will be visualized with two different line
 #' plots. 1: samples, intensity and ppm error, 2: missingness of the lipids in 
-#' the samples. Rows are removed from mz-obj where they are not shown.
-#' 
-#'
-#' MZ-OBJ Lipid Check Plot
-#'
-#' Mass Defect Calculation.\cr
-#'     Zeros any intensities that are lower than MD-Calc.
+#' the samples. Rows are removed from mz-obj where lipids are not shown.
 #'
 #' @param input_mz_obj \cr
 #'   DataFrame : Input MZ-Obj
@@ -68,12 +57,13 @@ lipid_sanity_check <- function(input_mz_obj) {
 #' Dependencies : ggplot2, ggpubr, dplyr
 #' @examples
 #' lipid_check_plot(input_mz_obj) # Run the filter
-#' @return Returns an MZ-OBJ
+#' @return Returns two line plots
 #' @export
 
-lipid_sanity_check <- function(input_mz_obj) {
-  input_mz_obj$MD <- as.numeric(input_mz_obj$mz) %% 1
-  input_mz_obj$mz_filter <- magicNumber1 * as.numeric(input_mz_obj$mz) + magicNumber2
+plot_lipid <- function(input_mz_obj) {
   
+  # line plot 1 - ppm error
+  
+  # line plot 2 - missingness
   
 }
