@@ -95,7 +95,8 @@ mz_filter_cv <- function(input_mz_obj, min_samples = 10, threshold_cv = 50,
     fig <- plot_cv(cov, threshold_presence, threshold_cv, title)
     print(fig)   # shown in rstudio viewer (in current session)
     # save the plot as a file
-    htmlwidgets::saveWidget(fig, file.path(local.output_dir(), paste0(title, ".html"))) 
+    htmlwidgets::saveWidget(fig, file.path(local.output_dir(), 
+                                           paste0(title, ".html")), selfcontained = FALSE)
   }
   
   if (!keep) { # filter only rows that meet thresholds
@@ -135,9 +136,12 @@ mz_filter_cv <- function(input_mz_obj, min_samples = 10, threshold_cv = 50,
 #' @export
 plot_cv <- function(mz_obj_cv, threshold_presence, threshold_cv,  title = title) {
   print("INFO: Generating html plot.")
-  df_cov <- mz_obj_cv %>% filter(cov != "nc") %>%
-    dplyr::mutate(cov = as.numeric(cov))
-  
+  # df_cov <- mz_obj_cv %>% filter(cov != "nc") %>%
+  #   dplyr::mutate(cov = as.numeric(cov))
+  df_cov <- mz_obj_cv %>%
+    dplyr::filter(cov != "nc") %>%
+    dplyr::mutate(cov = as.numeric(cov)) %>%
+    dplyr::select(mz, cov, presence)
   
   # plot
   fig <- plotly::plot_ly()
@@ -334,14 +338,14 @@ plot_cv <- function(mz_obj_cv, threshold_presence, threshold_cv,  title = title)
   
   # save plot
   
-  output_dir <- local.output_dir()
-  if (!dir.exists(output_dir)) {
-    dir.create(output_dir, recursive = TRUE)
-    message("created directory:", output_dir)
-  }
-  
-  file_name <- paste0(output_dir, local.dir_sep(), title, ".rds")
-  saveRDS(fig, file_name)
+  # output_dir <- local.output_dir()
+  # if (!dir.exists(output_dir)) {
+  #   dir.create(output_dir, recursive = TRUE)
+  #   message("created directory:", output_dir)
+  # }
+  # 
+  # file_name <- paste0(output_dir, local.dir_sep(), title, ".rds")
+  # saveRDS(fig, file_name)
   
   fig
 }
