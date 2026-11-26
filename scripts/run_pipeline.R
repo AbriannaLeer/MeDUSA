@@ -117,7 +117,7 @@ STEP8_HIGH_NOISE <- 5000
 # FALSE = skip the step and load its checkpoint from disk
 # -----------------------------------------------------------------------------
 RUN_STEP_0  <- TRUE
-# RUN_STEP_1 <- TRUE --> lipid function
+RUN_STEP_1 <- TRUE 
 RUN_STEP_2  <- TRUE
 RUN_STEP_3  <- TRUE
 RUN_STEP_4  <- TRUE
@@ -296,15 +296,30 @@ run_or_load_step(
 )
 
 # =============================================================================
+# STEP 1: Lipid Check
+# =============================================================================
+run_or_load_step(
+  step_id = "step1",
+  stage_name = "Step 1: Lipid Check",
+  enabled = RUN_STEP_1,
+  checkpoint_vars = c("mz_obj", "metadata", "qc"),
+  expr = {
+    cat("\n=== Step 1: Lipid Check ===\n")
+    mz_obj <- lipid_sanity_check(mz_obj)
+    cat("  After mass defect:", nrow(mz_obj), "features remaining\n")
+  }
+)
+
+# =============================================================================
 # STEP 2: Quality Check
 # =============================================================================
 run_or_load_step(
   step_id = "step2",
   stage_name = "Step 2: Quality Check",
   enabled = RUN_STEP_2,
-  checkpoint_vars = c("mz_obj", "metadata", "qc"),
+  checkpoint_vars = c("mz_obj", "metadata"),
   expr = {
-    cat("\n=== Step 2: Quality Check ===\n")
+    cat("\n=== Step 1: Lipid Check ===\n")
     
     mz_quality_meta_check(mz_obj, metadata)
     qc <- mz_quality_metrics(mz_obj, cores = 2)
@@ -396,11 +411,11 @@ run_or_load_step(
     cat("\n=== Step 6: Filtering (blacklist, missingness, intensity) ===\n")
     cat("  Using min_intensity =", STEP7_MIN_INTENSITY,
         ", missingness_threshold =", STEP7_MISSINGNESS_THRES, "\n")
-    
+
     min_intensity <- STEP7_MIN_INTENSITY
     missingness_threshold <- STEP7_MISSINGNESS_THRES
     blacklist <- NULL
-    
+
     if (!is.null(blacklist)) {
       if (blacklist == TRUE) {
         mz_obj <- mz_filter_blacklist(mz_obj)
@@ -483,14 +498,14 @@ run_or_load_step(
     welch <- mzlog_analysis_welch(phenoA_data, phenoB_data, cores = 2)
     cat("  Significant features (Welch):", sum(welch$p_05), "\n")
     mzlog_analysis_pca(mzLog[welch$p_05, ], metadata, plot_title = "PCA_Welch")
-    
+
     # Fold change
     fold <- mzlog_analysis_fold(phenoA_data, phenoB_data)
-    
+
     # Volcano plot & PCA on volcano hits
     volcano <- plot_volcano(welch, fold, title = paste("VolcanoPlot", POLARITY, sep = "-"))
     mzlog_analysis_pca(mzLog[volcano$diff != "NONE", ], metadata, plot_title = "PCA_Volcano")
-    
+
     rm(phenoA_data, phenoB_data)
     gc(full = TRUE)
   }
