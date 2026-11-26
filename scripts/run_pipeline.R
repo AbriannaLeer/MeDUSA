@@ -99,17 +99,17 @@ POLARITY <- tolower(readline(prompt = "Enter the polarity (pos/neg): "))
 # Step 0 — m/z rounding precision (decimals) before pivoting to wide format.
 MZ_ROUND_DIGITS <- 3
 
-# Step 6 — minimum intensity threshold.
+# Step 7 — minimum intensity threshold.
 #   Package default positive mode 5000, negative mode 2000
-STEP6_MIN_INTENSITY <- if (POLARITY == "pos") 5000 else 2000
+STEP7_MIN_INTENSITY <- if (POLARITY == "pos") 5000 else 2000
 
-# Step 6 — missingness threshold
+# Step 7 — missingness threshold
 #   Package default 0.1
-STEP6_MISSINGNESS_THRES <- 0.10
+STEP7_MISSINGNESS_THRES <- 0.10
 
-# Step 7: imputation noise range (package default: 10 / 5000)
-STEP7_LOW_NOISE  <- 10
-STEP7_HIGH_NOISE <- 5000
+# Step 8: imputation noise range (package default: 10 / 5000)
+STEP8_LOW_NOISE  <- 10
+STEP8_HIGH_NOISE <- 5000
 
 # -----------------------------------------------------------------------------
 # STEP SWITCHES
@@ -121,12 +121,12 @@ RUN_STEP_0  <- TRUE
 RUN_STEP_2  <- TRUE
 RUN_STEP_3  <- TRUE
 RUN_STEP_4  <- TRUE
-# RUN_STEP_5 <- TRUE --> CoV function
-RUN_STEP_5  <- TRUE
+RUN_STEP_5 <- TRUE 
 RUN_STEP_6  <- TRUE
 RUN_STEP_7  <- TRUE
-RUN_STEP_8 <- TRUE
+RUN_STEP_8  <- TRUE
 RUN_STEP_9 <- TRUE
+RUN_STEP_10 <- TRUE
 
 # remove random runs
 RANDOM_SEED <- 1
@@ -233,7 +233,8 @@ run_or_load_step(
   checkpoint_vars = c("mz_obj", "metadata"),
   expr = {
     cat("\n=== Step 0: Loading CSV and creating MZ-OBJ ===\n")
-
+    
+    # sample names can start with a number, check.names = FALSE does not add an X
     raw_all <- read.csv(CSV_FILE, stringsAsFactors = FALSE, check.names = FALSE)
     # regex to only get expected sample name pattern '[phenotype]_[date]_[sampleNumber]'
     colnames(raw_all) <- gsub("^([^_]+_[^_]+_[^_.]+).*$", "\\1", colnames(raw_all))
@@ -354,35 +355,53 @@ run_or_load_step(
 )
 
 # =============================================================================
-# STEP 5: Isotope Tagging
+# STEP 5: CoV Filter
 # =============================================================================
 run_or_load_step(
   step_id = "step5",
-  stage_name = "Step 5: Isotope Tagging",
+  stage_name = "Step 5: CoV Filter",
   enabled = RUN_STEP_5,
+  checkpoint_vars = c("mz_obj", "metadata", "qc"),
+  expr = {
+    cat("\n=== Step 5: Quality Check ===\n")
+    
+    mz_quality_meta_check(mz_obj, metadata)
+    qc <- mz_quality_metrics(mz_obj, cores = 2)
+    mzmetrics_quality_plot_all(qc)
+    print(head(qc))
+  }
+)
+
+# =============================================================================
+# STEP 6: Isotope Tagging
+# =============================================================================
+run_or_load_step(
+  step_id = "step6",
+  stage_name = "Step 6: Isotope Tagging",
+  enabled = RUN_STEP_6,
   checkpoint_vars = c("mz_obj", "metadata", "qc", "isotopes"),
   expr = {
-    cat("\n=== Step 5: Isotope Tagging ===\n")
+    cat("\n=== Step 6: Isotope Tagging ===\n")
     isotopes <- mz_tag_isotope_hunter(mz_obj)
     cat("  Isotope groups found:", length(isotopes), "\n")
   }
 )
 
 # =============================================================================
-# STEP 6: Noise Filtering — STRICTER NOW, runs before heavy step 7
+# STEP 7: Noise Filtering — STRICTER NOW, runs before heavy step 8
 # =============================================================================
 run_or_load_step(
-  step_id = "step6",
-  stage_name = "Step 6: Noise Filtering (blacklist, missingness, intensity)",
-  enabled = RUN_STEP_6,
+  step_id = "step7",
+  stage_name = "Step 7: Noise Filtering (blacklist, missingness, intensity)",
+  enabled = RUN_STEP_7,
   checkpoint_vars = c("mz_obj", "metadata", "qc", "isotopes"),
   expr = {
     cat("\n=== Step 6: Filtering (blacklist, missingness, intensity) ===\n")
-    cat("  Using min_intensity =", STEP6_MIN_INTENSITY,
-        ", missingness_threshold =", STEP6_MISSINGNESS_THRES, "\n")
+    cat("  Using min_intensity =", STEP7_MIN_INTENSITY,
+        ", missingness_threshold =", STEP7_MISSINGNESS_THRES, "\n")
     
-    min_intensity <- STEP6_MIN_INTENSITY
-    missingness_threshold <- STEP6_MISSINGNESS_THRES
+    min_intensity <- STEP7_MIN_INTENSITY
+    missingness_threshold <- STEP7_MISSINGNESS_THRES
     blacklist <- NULL
     
     if (!is.null(blacklist)) {
@@ -418,15 +437,15 @@ run_or_load_step(
 )
 
 # =============================================================================
-# STEP 7: Post-Processing (imputation, normalization, log2)
+# STEP 8: Post-Processing (imputation, normalization, log2)
 # =============================================================================
 run_or_load_step(
-  step_id = "step7",
-  stage_name = "Step 7: Post-Processing",
-  enabled = RUN_STEP_7,
+  step_id = "step8",
+  stage_name = "Step 8: Post-Processing",
+  enabled = RUN_STEP_8,
   checkpoint_vars = c("metadata", "mzLong", "mzLog"),
   expr = {
-    cat("\n=== Step 7: Post-Processing ===\n")
+    cat("\n=== Step 8: Post-Processing ===\n")
 
     # Free large upstream objects we no longer need in this step
     if (exists("isotopes",   envir = .GlobalEnv)) rm("isotopes",   envir = .GlobalEnv)
@@ -435,7 +454,7 @@ run_or_load_step(
     mem_report("before mz_post_magic")
 
     metadata <- metadata[metadata$sample_type != "blank", ]
-    mz_obj <- mz_post_imputation(mz_obj, low_noise = STEP7_LOW_NOISE, high_noise = STEP7_HIGH_NOISE)
+    mz_obj <- mz_post_imputation(mz_obj, low_noise = STEP8_LOW_NOISE, high_noise = STEP8_HIGH_NOISE)
     mz_obj <- mz_post_normalization(mz_obj, metadata, plot = FALSE)
     mzLog <- mz_post_log(mz_obj)
     mzLong <- mz_post_pivot_longer(mzLog, plot = FALSE)
@@ -450,20 +469,20 @@ run_or_load_step(
 )
 
 # =============================================================================
-# STEP 8: Volcano Analysis
+# STEP 9: Volcano Analysis
 # =============================================================================
 run_or_load_step(
-  step_id = "step8",
-  stage_name = "Step 8: Volcano Analysis",
-  enabled = RUN_STEP_8,
+  step_id = "step9",
+  stage_name = "Step 9: Volcano Analysis",
+  enabled = RUN_STEP_9,
   checkpoint_vars = c("metadata", "mzLong", "mzLog", "welch", "fold", "volcano"),
   expr = {
-    cat("\n=== Step 8: Volcano Analysis ===\n")
+    cat("\n=== Step 9: Volcano Analysis ===\n")
 
     phenoA_data <- mztools_filter(mzLog, metadata, PHENO_A)
     phenoB_data <- mztools_filter(mzLog, metadata, PHENO_B)
 
-    # Welch t-test + PCA on significant features
+    # Welch t-test & PCA on significant features
     welch <- mzlog_analysis_welch(phenoA_data, phenoB_data, cores = 2)
     cat("  Significant features (Welch):", sum(welch$p_05), "\n")
     mzlog_analysis_pca(mzLog[welch$p_05, ], metadata, plot_title = "PCA_Welch")
@@ -471,7 +490,7 @@ run_or_load_step(
     # Fold change
     fold <- mzlog_analysis_fold(phenoA_data, phenoB_data)
     
-    # Volcano plot + PCA on volcano hits
+    # Volcano plot & PCA on volcano hits
     volcano <- plot_volcano(welch, fold, title = paste("VolcanoPlot", POLARITY, sep = "-"))
     mzlog_analysis_pca(mzLog[volcano$diff != "NONE", ], metadata, plot_title = "PCA_Volcano")
     
@@ -481,18 +500,18 @@ run_or_load_step(
 )
 
 # =============================================================================
-# STEP 9: Compound Identification
+# STEP 10: Compound Identification
 # =============================================================================
 run_or_load_step(
-  step_id = "step9",
-  stage_name = "Step 9: Compound Identification",
-  enabled = RUN_STEP_9,
+  step_id = "step10",
+  stage_name = "Step 10: Compound Identification",
+  enabled = RUN_STEP_10,
   checkpoint_vars = c(
     "metadata", "mzLong", "mzLog",
     "welch", "fold", "volcano", "sig_mz", "hmdb_hits", "lipid_hits"
   ),
   expr = {
-    cat("\n=== Step 9: Compound Identification ===\n")
+    cat("\n=== Step 10: Compound Identification ===\n")
 
     sig_mz <- welch[which(welch$p_05), "mz", drop = FALSE]
     sig_mz$mz <- as.numeric(sig_mz$mz)
