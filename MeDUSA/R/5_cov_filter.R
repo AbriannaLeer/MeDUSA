@@ -23,7 +23,7 @@
 #'             rows that do not meet the min_samples.
 #' @param threshold_cv \cr
 #'    Numeric: Threshold for minimum coefficient of variance for a row. 
-#'             [threshold_cv]% 
+#'             |threshold_cv|% 
 #' @param threshold_presence \cr
 #'    Numeric: Threshold for minimum samples with intensity for a row. Needs to 
 #'            be equal or more than min_samples. |threshold_presence|%
@@ -31,7 +31,8 @@
 #'    Logical: If set to TRUE, original input_mz_object is kept, with added sd, 
 #'             mean, cov, presence and included columns. If set
 #'             to FALSE, only the rows that meet the thresholds threshold_cv and 
-#'             threshold_presence are kept.
+#'             threshold_presence are kept which will not cause issues for later
+#'             steps.
 #' @param plot \cr
 #'    Logical: If set to TRUE, the cv and presence will be plotted for each mz.
 #' @param title: \cr
@@ -91,8 +92,10 @@ mz_filter_cv <- function(input_mz_obj, min_samples = 10, threshold_cv = 50,
   
   
   if (plot) {
-    
-    plot_cv(cov, threshold_presence, threshold_cv, title)
+    fig <- plot_cv(cov, threshold_presence, threshold_cv, title)
+    print(fig)   # shown in rstudio viewer (in current session)
+    # save the plot as a file
+    htmlwidgets::saveWidget(fig, file.path(local.output_dir(), paste0(title, ".html"))) 
   }
   
   if (!keep) { # filter only rows that meet thresholds
@@ -339,6 +342,8 @@ plot_cv <- function(mz_obj_cv, threshold_presence, threshold_cv,  title = title)
   
   file_name <- paste0(output_dir, local.dir_sep(), title, ".rds")
   saveRDS(fig, file_name)
+  
+  fig
 }
 
 

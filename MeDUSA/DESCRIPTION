@@ -33,6 +33,7 @@ Depends:
     tidyr        (>= 1.3.0),
     tibble       (>= 3.2.1)
 Imports:
+    htmlwidgets (>= 1.6.4),
     plotly (>= 4.12.1)
 Suggests:
     devtools (== 2.4.5),

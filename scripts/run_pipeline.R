@@ -363,12 +363,9 @@ run_or_load_step(
   enabled = RUN_STEP_5,
   checkpoint_vars = c("mz_obj", "metadata", "qc"),
   expr = {
-    cat("\n=== Step 5: Quality Check ===\n")
+    cat("\n=== Step 5: CoV Filter ===\n")
     
-    mz_quality_meta_check(mz_obj, metadata)
-    qc <- mz_quality_metrics(mz_obj, cores = 2)
-    mzmetrics_quality_plot_all(qc)
-    print(head(qc))
+    mz_obj <- mz_filter_cv(mz_obj)
   }
 )
 
