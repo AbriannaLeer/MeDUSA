@@ -77,7 +77,7 @@ if (file.exists("renv.lock")) {
     "dplyr", "ggplot2", "tibble", "tidyr", "pbapply", "devtools", "pheatmap",
     "XML", "randomForest", "caret", "caTools", "AICcmodavg", "Matrix", "matrixStats",
     "ggpubr", "pROC", "duckdb", "readxl", "testthat", "shiny", "shinyjs",
-    "shinythemes", "later", "DT"
+    "shinythemes", "later", "DT", "plotly"
   )
   renv::install(cran_pkgs)
 }
