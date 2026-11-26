@@ -9,8 +9,8 @@
 #' is used to replace the zero values with a random number between 1 and a set
 #' noise value.
 #'
-#' Replace all <low_noise ("mostly zeros") with a randomized value
-#'   between low_noise and high_noise
+#' Replace all <|low_noise| ("mostly zeros") with a randomized value
+#'   between |low_noise| and |high_noise|
 #'
 #' @param input_mz_obj \cr
 #'   DataFrame : Input MZ-OBJ

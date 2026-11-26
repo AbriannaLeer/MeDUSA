@@ -11,8 +11,8 @@
 #' the thresholds or only return the rows that reach the thresholds. The user
 #' can also choose to plot the cv and presence against the cv.
 #' 
-#' Remove rows which have a coefficent of variance higher than [threshold_cv]% and 
-#' a presence higher than [threshold_presence]% in samples.
+#' Remove rows which have a coefficent of variance higher than |threshold_cv|% and 
+#' a presence higher than |threshold_presence|% in samples.
 #' 
 #' @param input_mz_obj \cr
 #'    Dataframe: input mz object with columns mz followed by samples with 
@@ -26,7 +26,7 @@
 #'             [threshold_cv]% 
 #' @param threshold_presence \cr
 #'    Numeric: Threshold for minimum samples with intensity for a row. Needs to 
-#'            be equal or more than min_samples. [threshold_presence]%
+#'            be equal or more than min_samples. |threshold_presence|%
 #' @param keep \cr
 #'    Logical: If set to TRUE, original input_mz_object is kept, with added sd, 
 #'             mean, cov, presence and included columns. If set
