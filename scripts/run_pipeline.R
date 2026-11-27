@@ -117,7 +117,7 @@ STEP8_HIGH_NOISE <- 5000
 # FALSE = skip the step and load its checkpoint from disk
 # -----------------------------------------------------------------------------
 RUN_STEP_0  <- TRUE
-RUN_STEP_1 <- TRUE 
+# RUN_STEP_1 <- TRUE 
 RUN_STEP_2  <- TRUE
 RUN_STEP_3  <- TRUE
 RUN_STEP_4  <- TRUE
@@ -298,17 +298,17 @@ run_or_load_step(
 # =============================================================================
 # STEP 1: Lipid Check
 # =============================================================================
-run_or_load_step(
-  step_id = "step1",
-  stage_name = "Step 1: Lipid Check",
-  enabled = RUN_STEP_1,
-  checkpoint_vars = c("mz_obj", "metadata"),
-  expr = {
-    cat("\n=== Step 1: Lipid Check ===\n")
-    mz_obj <- lipid_sanity_check(mz_obj)
-    cat("  After lipid check:", nrow(mz_obj), "features remaining\n")
-  }
-)
+# run_or_load_step(
+#   step_id = "step1",
+#   stage_name = "Step 1: Lipid Check",
+#   enabled = RUN_STEP_1,
+#   checkpoint_vars = c("mz_obj", "metadata"),
+#   expr = {
+#     cat("\n=== Step 1: Lipid Check ===\n")
+#     mz_obj <- lipid_sanity_check(mz_obj)
+#     cat("  After lipid check:", nrow(mz_obj), "features remaining\n")
+#   }
+# )
 
 # =============================================================================
 # STEP 2: Quality Check
