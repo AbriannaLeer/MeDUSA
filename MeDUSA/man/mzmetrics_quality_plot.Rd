@@ -4,7 +4,13 @@
 \alias{mzmetrics_quality_plot}
 \title{MZ_METRICS plot a single statistic}
 \usage{
-mzmetrics_quality_plot(mz_metrics, focus, title = F, plot_dim = c(8, 8))
+mzmetrics_quality_plot(
+  mz_metrics,
+  focus,
+  title = F,
+  plot_dim = c(8, 8),
+  polarity
+)
 }
 \arguments{
 \item{mz_metrics}{\cr
@@ -20,6 +26,9 @@ String : title of plot; defaults to set to "focus"}
 \item{plot_dim}{\cr
 c(Int,Int) : Dimensions of plot
 Dependencies : ggplot2, ggpubr, dplyr, parallel}
+
+\item{polarity}{\cr
+String : polarity set by user}
 }
 \value{
 plots of a provided quality metrics

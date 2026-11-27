@@ -22,7 +22,6 @@
 #'
 #' @export
 mztools_filter <- function(input_mzobj, metadata, filter_value, filter_name = "phenotype", exclude = F, keep_mz = T) {
-  metadata <- local.meta_polarity_fixer(input_mzobj, metadata)
   if (exclude) {
     meta_filtered <- dplyr::filter(metadata, !(get(filter_name) %in% filter_value) & filtered_out == FALSE)
   } else {

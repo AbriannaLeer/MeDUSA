@@ -145,6 +145,8 @@ SUBSAMPLE_SEED <- 1
 
 metadata <- read.csv(METADATA, stringsAsFactors = FALSE)
 metadata <- metadata[metadata$polarity == POLARITY, ]
+# match metadata sample names to mz_obj columns (both get the polarity prefix!)
+metadata$sample_name <- paste0(POLARITY, "_", metadata$sample_name)
 
 # =============================================================================
 # Choosing phenotypes for volcano comparison (exactly 2 phenotypes)
@@ -463,7 +465,7 @@ run_or_load_step(
     mz_obj <- mz_post_imputation(mz_obj, low_noise = STEP8_LOW_NOISE, high_noise = STEP8_HIGH_NOISE)
     mz_obj <- mz_post_normalization(mz_obj, metadata, plot = FALSE, polarity = POLARITY)
     mzLog <- mz_post_log(mz_obj)
-    mzLong <- mz_post_pivot_longer(mzLog, plot = FALSE, polarity = POLARITY)
+    mzLong <- mz_post_pivot_longer(mzLog, plot = TRUE, polarity = POLARITY)
 
     cat("  mzLog:",  nrow(mzLog),  "features x", ncol(mzLog) - 1, "samples\n")
     cat("  mzLong:", nrow(mzLong), "rows\n")
@@ -498,7 +500,7 @@ run_or_load_step(
 
     # Volcano plot & PCA on volcano hits
     volcano <- plot_volcano(welch, fold, title = paste("VolcanoPlot", polarity = POLARITY, sep = "-"))
-    mzlog_analysis_pca(mzLog[volcano$diff != "NONE", ], metadata, plot_title = "PCA_Volcano")
+    mzlog_analysis_pca(mzLog[volcano$diff != "NONE", ], metadata, plot_title = "PCA_Volcano", polarity = POLARITY)
 
     rm(phenoA_data, phenoB_data)
     gc(full = TRUE)

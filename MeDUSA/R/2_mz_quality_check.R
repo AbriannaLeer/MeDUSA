@@ -77,7 +77,7 @@ mz_quality_metrics <- function(input_mz_obj, cores = 2) {
 #' @export
 mzmetrics_quality_plot_all <- function(mz_metrics, polarity) {
   for (f in colnames(mz_metrics[-1])) {
-    mzmetrics_quality_plot(mz_metrics, f, polarity)
+    mzmetrics_quality_plot(mz_metrics, f, polarity = polarity)
   }
 }
 

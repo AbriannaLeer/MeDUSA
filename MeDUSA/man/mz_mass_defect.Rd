@@ -8,7 +8,8 @@ mz_mass_defect(
   input_mz_obj,
   plot = TRUE,
   magicNumber1 = 0.00112,
-  magicNumber2 = 0.01953
+  magicNumber2 = 0.01953,
+  polarity
 )
 }
 \arguments{
@@ -22,7 +23,10 @@ Boolean   : To plot or not to plot.}
 Float     : MagicNumber1 in "MN1 * data + MN2"}
 
 \item{magicNumber2}{\cr
-Float     : MagicNumber2 in "MN1 * data + MN2"
+Float     : MagicNumber2 in "MN1 * data + MN2"}
+
+\item{polarity}{\cr
+String : polarity set by user
 
 Dependencies : ggplot2, ggpubr, dplyr}
 }

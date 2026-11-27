@@ -4,11 +4,14 @@
 \alias{mzmetrics_quality_plot_all}
 \title{MZ_METRICS plot all statistics}
 \usage{
-mzmetrics_quality_plot_all(mz_metrics)
+mzmetrics_quality_plot_all(mz_metrics, polarity)
 }
 \arguments{
 \item{mz_metrics}{\cr
 DataFrame : from "MeDUSA::mz_quality_metrics"}
+
+\item{polarity}{\cr
+String : polarity set by user}
 }
 \value{
 plots of all quality metrics
