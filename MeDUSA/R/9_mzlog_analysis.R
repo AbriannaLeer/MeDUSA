@@ -20,14 +20,16 @@
 #'   String    : Title of the plot.
 #' @param sample_blacklist \cr
 #'   List      : c("bad1", "bad2")
+#' @param polarity \cr
+#'   String : polarity set by user
 #' @examples
 #' mzlog_analysis_pca(input_mzlog_obj, metadata) # run pca analysis with standard parameters
 #' mzlog_analysis_pca(input_mzlog_obj, metadata, qual_col = "type", plot_title = "Science!", sample_blacklist = c(100.123, 200.345)) # run pca analysis with custom parameters
 #' @return
 #' null (only plots)
 #' @export
-mzlog_analysis_pca <- function(input_mzlog_obj, metadata, qual_col = "phenotype", plot_title = "PCA", sample_blacklist = c()) {
-  metadata <- local.meta_polarity_fixer(input_mzlog_obj, metadata)
+mzlog_analysis_pca <- function(input_mzlog_obj, metadata, qual_col = "phenotype", 
+                               plot_title = "PCA", sample_blacklist = c(), polarity) {
 
   mz_data <- as.matrix(input_mzlog_obj[, -which(names(input_mzlog_obj) == "mz")])
   rownames(mz_data) <- input_mzlog_obj$mz
@@ -46,13 +48,13 @@ mzlog_analysis_pca <- function(input_mzlog_obj, metadata, qual_col = "phenotype"
 
   ggpubr::ggscatter(plot_df,
     x = "PC1", y = "PC2",
-    title = paste("PCA:", local.mz_polarity_guesser(input_mzlog_obj)),
+    title = paste("PCA:", polarity),
     color = qual_col, size = 0.5, ellipse = TRUE, mean.point = TRUE,
     xlab = paste0("PC1: ", round(var_explained[1] * 100, 1), "%"),
     ylab = paste0("PC2: ", round(var_explained[2] * 100, 1), "%")
   )
 
-  local.save_plot(paste(plot_title, local.mz_polarity_guesser(input_mzlog_obj), sep = "-"))
+  local.save_plot(paste(plot_title, polarity, sep = "-"))
 }
 # *** Welch [T-Test] -----------------------------------------------------
 #' MZLOG-OBJ T-Test
@@ -277,9 +279,8 @@ mzlog_analysis_heatmap <- function(input_mzlog_obj, metadata = NULL, annotation 
 
   annotation_int <- NULL
   if (!is.null(annotation) && !is.null(metadata)) {
-    pol <- local.mz_polarity_guesser(input_mzlog_obj, pos_return = "pos", neg_return = "neg")
     current_samples <- colnames(plot_obj)
-    match_idx <- match(current_samples, paste0(pol, "_", metadata$sample_name))
+    match_idx <- match(current_samples, metadata$sample_name)
 
     if (any(is.na(match_idx))) {
       stop("ERROR:MeDUSA::mzlog_analysis_heatmap: metadata and samples do not match")

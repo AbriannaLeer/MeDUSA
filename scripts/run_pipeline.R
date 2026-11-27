@@ -109,7 +109,7 @@ STEP7_MISSINGNESS_THRES <- 0.10
 
 # Step 8: imputation noise range (package default: 10 / 5000)
 STEP8_LOW_NOISE  <- 10
-STEP8_HIGH_NOISE <- 5000
+STEP8_HIGH_NOISE <- if (POLARITY == "pos") 1000 else 500
 
 # -----------------------------------------------------------------------------
 # STEP SWITCHES
@@ -128,7 +128,7 @@ RUN_STEP_8  <- TRUE
 RUN_STEP_9 <- TRUE
 RUN_STEP_10 <- TRUE
 
-# remove random runs
+# make sure every pipeline run in reproducible, same 'random values' 
 RANDOM_SEED <- 1
 set.seed(RANDOM_SEED)
 
@@ -323,7 +323,7 @@ run_or_load_step(
     
     mz_quality_meta_check(mz_obj, metadata)
     qc <- mz_quality_metrics(mz_obj, cores = 2)
-    mzmetrics_quality_plot_all(qc)
+    mzmetrics_quality_plot_all(qc, polarity = POLARITY)
     print(head(qc))
   }
 )
@@ -364,7 +364,7 @@ run_or_load_step(
   checkpoint_vars = c("mz_obj", "metadata", "qc"),
   expr = {
     cat("\n=== Step 4: Mass Defect Filter ===\n")
-    mz_obj <- mz_mass_defect(mz_obj)
+    mz_obj <- mz_mass_defect(mz_obj, polarity = POLARITY)
     cat("  After mass defect:", nrow(mz_obj), "features remaining\n")
   }
 )
@@ -427,21 +427,12 @@ run_or_load_step(
       mz_obj <- mz_filter_missingness(mz_obj, missingness_threshold)
     } else {
       default_missingness <- 0.1
-      print(paste0("INFO:MeDUSA::mz_filter_magic: Using 'magic' missingness_threshold:", default_missingness))
+      print(paste0("INFO:MeDUSA::mz_noise_filter: Using missingness_threshold:", default_missingness))
       mz_obj <- mz_filter_missingness(mz_obj, threshold = default_missingness)
     }
     if (is.null(min_intensity)) {
-      min_intensity <- tryCatch(
-        {
-          local.mz_polarity_guesser(mz_obj, pos_return = 5000, neg_return = 2000)
-        },
-        error = function(e) {
-          print(e)
-          stop("ERROR:MeDUSA::mz_filter_magic: Could not guess positive or negative from colnames
-        Please specify min_intensity")
-        }
-      )
-      print(paste0("INFO:MeDUSA::mz_filter_magic: Using 'magic' min_intensity: ", min_intensity))
+      min_intensity <- STEP7_MIN_INTENSITY
+      print(paste0("INFO:MeDUSA::mz_noise_filter: Using min_intensity: ", min_intensity))
     }
     mz_obj <- mz_filter_low_intensity(mz_obj, min_intensity)
     cat("  After filtering:", nrow(mz_obj), "features remaining\n")
@@ -463,13 +454,16 @@ run_or_load_step(
     if (exists("isotopes",   envir = .GlobalEnv)) rm("isotopes",   envir = .GlobalEnv)
     if (exists("qc", envir = .GlobalEnv)) rm("qc", envir = .GlobalEnv)
     gc(full = TRUE)
-    mem_report("before mz_post_magic")
+    mem_report("before post-processing")
 
     metadata <- metadata[metadata$sample_type != "blank", ]
+    
+    # reset seed so imputation gives identical results even when earlier steps are loaded from checkpoint
+    set.seed(RANDOM_SEED) 
     mz_obj <- mz_post_imputation(mz_obj, low_noise = STEP8_LOW_NOISE, high_noise = STEP8_HIGH_NOISE)
-    mz_obj <- mz_post_normalization(mz_obj, metadata, plot = FALSE)
+    mz_obj <- mz_post_normalization(mz_obj, metadata, plot = FALSE, polarity = POLARITY)
     mzLog <- mz_post_log(mz_obj)
-    mzLong <- mz_post_pivot_longer(mzLog, plot = FALSE)
+    mzLong <- mz_post_pivot_longer(mzLog, plot = FALSE, polarity = POLARITY)
 
     cat("  mzLog:",  nrow(mzLog),  "features x", ncol(mzLog) - 1, "samples\n")
     cat("  mzLong:", nrow(mzLong), "rows\n")
@@ -497,13 +491,13 @@ run_or_load_step(
     # Welch t-test & PCA on significant features
     welch <- mzlog_analysis_welch(phenoA_data, phenoB_data, cores = 2)
     cat("  Significant features (Welch):", sum(welch$p_05), "\n")
-    mzlog_analysis_pca(mzLog[welch$p_05, ], metadata, plot_title = "PCA_Welch")
+    mzlog_analysis_pca(mzLog[welch$p_05, ], metadata, plot_title = "PCA_Welch", polarity = POLARITY)
 
     # Fold change
     fold <- mzlog_analysis_fold(phenoA_data, phenoB_data)
 
     # Volcano plot & PCA on volcano hits
-    volcano <- plot_volcano(welch, fold, title = paste("VolcanoPlot", POLARITY, sep = "-"))
+    volcano <- plot_volcano(welch, fold, title = paste("VolcanoPlot", polarity = POLARITY, sep = "-"))
     mzlog_analysis_pca(mzLog[volcano$diff != "NONE", ], metadata, plot_title = "PCA_Volcano")
 
     rm(phenoA_data, phenoB_data)

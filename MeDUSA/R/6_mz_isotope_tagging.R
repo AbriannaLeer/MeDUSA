@@ -96,13 +96,10 @@ mz_tag_isotope_hunter <- function(input_mz, iso_target = 1.0034, iso_iter = 5, t
   return(out)
 }
 
-
-
+# TODO FLATTEN?
 # mz_isotope_flatten <- function(input_mz_obj, isotope_list, method = max, cores = 4){
 #  pblapply(input_mz_obj, function(isotope_list, x, method = method){
 #    if x$mz %in% names(isotope_list){
 #      x <- apply(select(input_mz_obj[input_mz_obj$mz %in% x,], -mz),2, method)
 #  })
 # }
-
-# TODO FLATTEN?

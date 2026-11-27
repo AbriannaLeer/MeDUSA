@@ -69,13 +69,15 @@ mz_quality_metrics <- function(input_mz_obj, cores = 2) {
 #'
 #' @param mz_metrics \cr
 #'   DataFrame : from "MeDUSA::mz_quality_metrics"
+#' @param polarity \cr
+#'   String : polarity set by user
 #' @examples
 #' mzmetrics_quality_plot_all(mz_metrics) # Plot all metrics
 #' @return plots of all quality metrics
 #' @export
-mzmetrics_quality_plot_all <- function(mz_metrics) {
+mzmetrics_quality_plot_all <- function(mz_metrics, polarity) {
   for (f in colnames(mz_metrics[-1])) {
-    mzmetrics_quality_plot(mz_metrics, f)
+    mzmetrics_quality_plot(mz_metrics, f, polarity)
   }
 }
 
@@ -94,13 +96,15 @@ mzmetrics_quality_plot_all <- function(mz_metrics) {
 #' @param plot_dim \cr
 #'   c(Int,Int) : Dimensions of plot
 #' Dependencies : ggplot2, ggpubr, dplyr, parallel
+#' @param polarity \cr
+#'   String : polarity set by user
 #' @examples
 #' mzmetrics_quality_plot(mz_metrics, "peaks_1k") # Plot all metrics
 #' mzmetrics_quality_plot(mz_metrics, "n_peaks", title = "Custom_npeaks", plot_dim = c(10, 10))
 #' # Plot n_peaks with a custom title and dimensions
 #' @return plots of a provided quality metrics
 #' @export
-mzmetrics_quality_plot <- function(mz_metrics, focus, title = F, plot_dim = c(8, 8)) {
+mzmetrics_quality_plot <- function(mz_metrics, focus, title = F, plot_dim = c(8, 8), polarity) {
   if (title == F) {
     title <- focus
   }
@@ -123,7 +127,7 @@ mzmetrics_quality_plot <- function(mz_metrics, focus, title = F, plot_dim = c(8,
     ) +
     ggplot2::theme(legend.position = "none", axis.text.y = ggplot2::element_text(size = ggplot2::rel(0.5)))
 
-  local.save_plot(paste("QualityCheck", title, local.mz_polarity_guesser(mz_metrics), sep = "-"), dim = plot_dim)
+  local.save_plot(paste("QualityCheck", title, polarity, sep = "-"), dim = plot_dim)
 }
 
 # *** Metrics Quality Metadata Check -----------------------------------------------------
@@ -155,7 +159,6 @@ mz_quality_meta_check <- function(input_mz_obj, meta) {
   # TODO: Having fewer underscores breaks future regex, needs hardening
   # example sample_name: B_20260318_1
   print("LOG: MeDUSA::mz_quality_meta_check: meta$sample_name currently expects the format '[phenotype]_[date]_[sampleNumber]'")
-  meta <- local.meta_polarity_fixer(input_mz_obj, meta)
   .subset_check <- function(listA, listB, msg) {
     missing <- listA[!(listA %in% listB)]
     if (length(missing) > 0) {

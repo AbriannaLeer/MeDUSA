@@ -23,19 +23,7 @@
 #' mz_post_imputation(input_mz_obj, low_noise = 100, high_noise = 10000) # run imputation with custom noise levels
 #' @return MZ-OBJ
 #' @export
-mz_post_imputation <- function(input_mz_obj, low_noise = 10, high_noise = NULL) {
-  if (!hasArg(high_noise)) {
-    high_noise <- tryCatch(
-      {
-        local.mz_polarity_guesser(input_mz_obj, pos_return = 1000, neg_return = 500)
-      },
-      error = function(e) {
-        print(e)
-        stop("ERROR: MeDUSA::mz_post_imputation: Could not guess positive or negative from colnames
-            Please specify high_noise")
-      }
-    )
-  }
+mz_post_imputation <- function(input_mz_obj, low_noise = 10, high_noise) {
   if (low_noise < 500) {
     print("WARN: MeDUSA::mz_post_imputation: low_noise is < 500. If [input_mz_obj] has an mz column, ensure it is labled 'mz'")
   }
@@ -74,12 +62,13 @@ mz_post_imputation <- function(input_mz_obj, low_noise = 10, high_noise = NULL) 
 #'   Boolean   : to plot or not to plot
 #' @param meta \cr
 #'   DataFrame : metadata object
+#' @param polarity \cr
+#'   String : polarity set by user
 #' @examples
 #' mz_post_normalization(input_mz_obj, metadata) # run normalization
 #' @return Returns an MZ-OBJ
 #' @export
-mz_post_normalization <- function(input_mz_obj, metadata, plot = TRUE) {
-  metadata <- local.meta_polarity_fixer(input_mz_obj, metadata)
+mz_post_normalization <- function(input_mz_obj, metadata, plot = TRUE, polarity) {
   # TODO revisit, for a refactor
   rownames(input_mz_obj) <- input_mz_obj$mz
   result <- quotNorm(t(dplyr::select(input_mz_obj, -mz)))
@@ -89,7 +78,6 @@ mz_post_normalization <- function(input_mz_obj, metadata, plot = TRUE) {
   join_by <- c("sample")
   names(join_by) <- "sample_name"
   dilution <- dplyr::left_join(metadata, dilution, by = join_by)
-  polarity <- local.mz_polarity_guesser(input_mz_obj)
 
   if (plot) {
     ggpubr::ggboxplot(dilution,
@@ -124,14 +112,16 @@ mz_post_normalization <- function(input_mz_obj, metadata, plot = TRUE) {
 #'   DataFrame : Input MZ-OBJ
 #' @param plot \cr
 #'   Boolean   : to plot or not to plot
+#' @param polarity \cr
+#'   String : polarity set by user
 #' @examples
 #' mz_post_pivot_longer(input_mz_obj) # run pivot
 #' @return mzLong-OBJ
 #' @export
-mz_post_pivot_longer <- function(input_mz_obj, plot = TRUE) {
+mz_post_pivot_longer <- function(input_mz_obj, plot = TRUE, polarity) {
   input_mzlong <- tidyr::pivot_longer(input_mz_obj, !mz, names_to = "sample_name", values_to = "intensity")
   if (plot) {
-    mzlongpost.plot(input_mzlong, local.mz_polarity_guesser(input_mz_obj), "PivotLonger")
+    mzlongpost.plot(input_mzlong, polarity, "PivotLonger")
   }
   data.frame(input_mzlong)
 }
@@ -175,16 +165,18 @@ mz_post_log <- function(input_mz_obj) {
 #'   DataFrame : Input MZLONG-Obj
 #' @param plot \cr
 #'   Boolean   : to plot or not to plot
+#' @param polarity \cr
+#'   String : polarity set by user
 #' @examples
 #' mzlong_post_log(input_mz_obj, metadata) # run log2 on a mzlong (pivoted mz_obj)
 #' @return MzLong_obj
 #' @export
-mzlong_post_log <- function(input_mzlong, plot = TRUE) {
+mzlong_post_log <- function(input_mzlong, plot = TRUE, polarity) {
   input_mzlong$log <- log2(input_mzlong$intensity)
   if (plot) {
     tmp <- select(input_mzlong, -intensity)
     tmp$intensity <- tmp$log
-    mzlongpost.plot(tmp, local.mz_polarity_guesser(input_mzlong), "PivotLongLog")
+    mzlongpost.plot(tmp, polarity, "PivotLongLog")
   }
   input_mzlong
 }

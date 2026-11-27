@@ -27,36 +27,6 @@ local.mz_log_removed_rows <- function(in_mz, out_mz, method) {
   return(list("mz_before" = mz_before, "mz_after" = mz_after, "mz_removed" = mz_removed))
 }
 
-local.mz_polarity_guesser <- function(input, pos_return = "Positive", neg_return = "Negative") {
-  input <- head(input)
-  try({
-    input[3, ] <- colnames(input)
-  })
-  count <- 0
-  if (sum(grep("[^A-Za-z|^][Nn]eg|[Nn]egative", input)) > 0) {
-    print("INFO:MeDUSA::polarity_guess: Detected Negative")
-    count <- count + 1
-    ret <- neg_return
-  }
-  if (sum(grep("[^A-Za-z|^][Pp]os|[Pp]ositive", input)) > 0) {
-    count <- count + 1
-    ret <- pos_return
-    print("INFO:MeDUSA::polarity_guess: Detected Positive")
-  }
-  if (count > 1) {
-    stop("ERROR: MeDUSA::polarity_guesser: Detected both Positive & Negative from colnames")
-  } else if (count < 1) {
-    stop("ERROR: MeDUSA::polarity_guesser: Could not guess Positive or Negative from colnames")
-  }
-  ret
-}
-
-local.meta_polarity_fixer <- function(input_mz, meta) {
-  prepend <- local.mz_polarity_guesser(input_mz, pos_return = "pos", neg_return = "neg")
-  meta$sample_name <- paste(prepend, meta$sample_name, sep = "_")
-  meta
-}
-
 local.save_plot <- function(plot_name, output_dir = local.output_dir(), dim = c(8, 8)) {
   ggplot2::ggsave(
     filename = paste0(output_dir, local.dir_sep(), plot_name, ".png"),

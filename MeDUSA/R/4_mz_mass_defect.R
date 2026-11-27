@@ -23,6 +23,8 @@
 #'   Float     : MagicNumber1 in "MN1 * data + MN2"
 #' @param magicNumber2 \cr
 #'   Float     : MagicNumber2 in "MN1 * data + MN2"
+#' @param polarity \cr
+#'   String : polarity set by user
 #'
 #' Dependencies : ggplot2, ggpubr, dplyr
 #' @examples
@@ -32,7 +34,7 @@
 #' @return Returns an MZ-OBJ
 #' @export
 
-mz_mass_defect <- function(input_mz_obj, plot = TRUE, magicNumber1 = 0.00112, magicNumber2 = 0.01953) {
+mz_mass_defect <- function(input_mz_obj, plot = TRUE, magicNumber1 = 0.00112, magicNumber2 = 0.01953, polarity) {
   input_mz_obj$MD <- as.numeric(input_mz_obj$mz) %% 1
   input_mz_obj$mz_filter <- magicNumber1 * as.numeric(input_mz_obj$mz) + magicNumber2
 
@@ -52,12 +54,12 @@ mz_mass_defect <- function(input_mz_obj, plot = TRUE, magicNumber1 = 0.00112, ma
         color = "MD",
         xlab = "m/z",
         ylab = "MD",
-        title = paste("MassDefect", local.mz_polarity_guesser(input_mz_obj), sep = "-"),
+        title = paste("MassDefect", polarity, sep = "-"),
         subtitle = paste("Rows removed: ", mz_removed),
         legend = "none"
       )
 
-      local.save_plot(paste("MassDefect", local.mz_polarity_guesser(input_mz_obj), sep = "-"))
+      local.save_plot(paste("MassDefect", polarity, sep = "-"))
     }
   }, error = function(e) {
     print("WARN:MeDUSA::mz_mass_defect: did not filter out anything to plot")

@@ -22,7 +22,6 @@
 #' mzlong_analysis_anova(input_mzlog_obj, metadata, phenotypes = c("red", "blue")) # anova run (probably)
 #' @export
 mzlong_analysis_anova <- function(input_mzlong_obj, metadata, phenotypes, p_cutoff = 0.1, cores = 2) {
-  metadata <- local.meta_polarity_fixer(input_mzlong_obj, metadata)
   mzlong <- dplyr::left_join(input_mzlong_obj, metadata[c("sample_name", "phenotype")], by = "sample_name")
   mzlong <- mzlong[mzlong$phenotype %in% phenotypes, ]
   uniq_mz <- unique(mzlong$mz)

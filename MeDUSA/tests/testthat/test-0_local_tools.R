@@ -13,42 +13,6 @@ test_that("mz_log_removed_rows: HappyPath", {
 })
 
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-##     local.mz_polarity_guesser                                                   ----
-## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-test_that("mz_polarity_guesser: HappyPath", {
-  load("testdata/mz_neg.Rdata")
-  expect_identical(local.mz_polarity_guesser(mz_neg), "Negative")
-  colnames(mz_neg) <- c("mz", "Positive_sample1", "Positive_sample2", "Positive_sample3", "Positive_sample4")
-  expect_identical(local.mz_polarity_guesser(mz_neg), "Positive")
-})
-
-test_that("mz_polarity_guesser: Custom Return", {
-  load("testdata/mz_neg.Rdata")
-  expect_identical(local.mz_polarity_guesser(mz_neg, neg_return = "Chickens"), "Chickens")
-})
-
-test_that("mz_polarity_guesser: Errors on both", {
-  load("testdata/mz_neg.Rdata")
-  colnames(mz_neg) <- c("mz", "sample1", "sample2", "sample3", "sample4")
-  expect_error(local.mz_polarity_guesser(mz_neg), "ERROR: MeDUSA::polarity_guesser: Could not guess Positive or Negative from colnames")
-})
-
-test_that("mz_polarity_guesser: Errors on both", {
-  load("testdata/mz_neg.Rdata")
-  colnames(mz_neg) <- c("mz", "neg_sample1", "Positive_sample2", "Positive_sample3", "Positive_sample4")
-  expect_error(local.mz_polarity_guesser(mz_neg), "ERROR: MeDUSA::polarity_guesser: Detected both Positive & Negative from colnames")
-})
-## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-##     local.meta_polarity_fixer                                                   ----
-## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-test_that("mz_polarity_guesser: HappyPath", {
-  load("testdata/mz_neg.Rdata")
-  meta <- data.frame(read.csv("testdata/meta_neg.csv"))
-  expect <- c("neg_mzml_1", "neg_mzml_2", "neg_mzml_31", "neg_mzml_33")
-  expect_identical(local.meta_polarity_fixer(mz_neg, meta)$sample_name, expect)
-})
-
-## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##     local.ensure_mz                                                 ----
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 test_that("ensure_mz: no_mz provided", {
